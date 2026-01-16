@@ -253,11 +253,11 @@
       .form-select,
       .form-textarea {
         width: 100%;
-        padding: 1rem 1.5rem;
+        padding: 0.5rem 0.75rem;
         border: 2px solid rgba(212, 165, 116, 0.2);
-        border-radius: 12px;
+        border-radius: 8px;
         font-family: "Work Sans", sans-serif;
-        font-size: 1rem;
+        font-size: 0.9rem;
         transition: all 0.3s ease;
         background: white;
       }
@@ -272,7 +272,7 @@
 
       .form-textarea {
         resize: vertical;
-        min-height: 150px;
+        min-height: 60px;
       }
 
       /* Mobile menu */
@@ -926,9 +926,9 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="pt-24 pb-12 px-6 hero-gradient">
-      <div class="max-w-7xl mx-auto">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
+    <section id="home" class="min-h-screen pt-24 pb-8 px-6 hero-gradient flex items-center">
+      <div class="max-w-7xl mx-auto w-full">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
           <div class="fade-in">
             <h1
               class="text-5xl md:text-6xl font-bold mb-6 leading-tight"
@@ -957,9 +957,9 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="py-10 bg-white">
+    <section class="py-6 bg-white">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div class="stats-card">
             <div class="stat-number">500+</div>
             <p class="text-gray-600 mt-2">Pets Rescued</p>
@@ -981,12 +981,12 @@
     </section>
 
     <!-- Mission Video Section -->
-    <section class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30">
+    <section class="py-6 px-6 bg-gradient-to-b from-white to-amber-50/30">
       <div class="max-w-5xl mx-auto text-center">
-        <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
+        <h2 class="text-4xl font-bold mb-2" style="color: var(--dark)">
           Our Mission in Action
         </h2>
-        <p class="text-gray-600 mb-12 text-lg">
+        <p class="text-gray-600 mb-6 text-lg">
           Watch how we rescue, rehabilitate, and rehome pets across Bengaluru
         </p>
 
@@ -1025,10 +1025,10 @@
     </div>
 
     <!-- Available Pets Section -->
-    <section id="pets" class="py-12 px-6">
+    <section id="pets" class="py-6 px-6">
       <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
+        <div class="text-center mb-6">
+          <h2 class="text-4xl font-bold mb-2" style="color: var(--dark)">
             Pets Available for Adoption
           </h2>
           <p class="text-gray-600 text-lg">Meet your new best friend</p>
@@ -1114,33 +1114,33 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-12 px-6">
+    <section id="contact" class="py-4 px-6">
       <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
+        <div class="text-center mb-4">
+          <h2 class="text-2xl font-bold mb-1" style="color: var(--dark)">
             Get in Touch
           </h2>
-          <p class="text-gray-600 text-lg">We'd love to hear from you</p>
+          <p class="text-gray-600 text-sm">We'd love to hear from you</p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-12">
+        <div class="grid md:grid-cols-2 gap-6">
           <!-- Contact Information -->
-          <div class="space-y-8">
+          <div>
             <div>
               <h3
-                class="text-2xl font-semibold mb-6"
+                class="text-lg font-semibold mb-3"
                 style="color: var(--dark)"
               >
                 Contact Information
               </h3>
 
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4">
+              <div class="space-y-2">
+                <div class="flex items-center space-x-2">
                   <div
-                    class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
+                    class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
                   >
                     <svg
-                      class="w-6 h-6 text-amber-600"
+                      class="w-4 h-4 text-amber-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1160,19 +1160,19 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-semibold mb-1">Address</p>
-                    <p class="text-gray-600">
-                      Koramangala, Bengaluru<br />Karnataka 560034
+                    <p class="font-semibold text-sm">Address</p>
+                    <p class="text-gray-600 text-sm">
+                      Koramangala, Bengaluru, Karnataka 560034
                     </p>
                   </div>
                 </div>
 
-                <div class="flex items-start space-x-4">
+                <div class="flex items-center space-x-2">
                   <div
-                    class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
+                    class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
                   >
                     <svg
-                      class="w-6 h-6 text-amber-600"
+                      class="w-4 h-4 text-amber-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1186,17 +1186,17 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-semibold mb-1">Phone</p>
-                    <p class="text-gray-600">+91 98765 43210</p>
+                    <p class="font-semibold text-sm">Phone</p>
+                    <p class="text-gray-600 text-sm">+91 98765 43210</p>
                   </div>
                 </div>
 
-                <div class="flex items-start space-x-4">
+                <div class="flex items-center space-x-2">
                   <div
-                    class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
+                    class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
                   >
                     <svg
-                      class="w-6 h-6 text-amber-600"
+                      class="w-4 h-4 text-amber-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1210,17 +1210,17 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-semibold mb-1">Email</p>
-                    <p class="text-gray-600">info@pawtnerhope.org</p>
+                    <p class="font-semibold text-sm">Email</p>
+                    <p class="text-gray-600 text-sm">info@pawtnerhope.org</p>
                   </div>
                 </div>
 
-                <div class="flex items-start space-x-4">
+                <div class="flex items-center space-x-2">
                   <div
-                    class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
+                    class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0"
                   >
                     <svg
-                      class="w-6 h-6 text-amber-600"
+                      class="w-4 h-4 text-amber-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1234,8 +1234,8 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-semibold mb-1">Hours</p>
-                    <p class="text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM</p>
+                    <p class="font-semibold text-sm">Hours</p>
+                    <p class="text-gray-600 text-sm">Mon-Sat: 9:00 AM - 6:00 PM</p>
                   </div>
                 </div>
               </div>
@@ -1243,12 +1243,12 @@
           </div>
 
           <!-- Contact Form -->
-          <div class="bg-white rounded-3xl shadow-xl p-8">
-            <form id="contact-form" class="space-y-6">
+          <div class="bg-white rounded-xl shadow-lg p-3">
+            <form id="contact-form" class="space-y-2">
               <div>
                 <label
                   for="name"
-                  class="block text-sm font-medium text-gray-700 mb-2"
+                  class="block text-sm font-medium text-gray-700 mb-1"
                   >Name *</label
                 >
                 <input
@@ -1267,7 +1267,7 @@
               <div>
                 <label
                   for="email"
-                  class="block text-sm font-medium text-gray-700 mb-2"
+                  class="block text-sm font-medium text-gray-700 mb-1"
                   >Email *</label
                 >
                 <input
@@ -1286,7 +1286,7 @@
               <div>
                 <label
                   for="purpose"
-                  class="block text-sm font-medium text-gray-700 mb-2"
+                  class="block text-sm font-medium text-gray-700 mb-1"
                   >Purpose *</label
                 >
                 <select
@@ -1310,7 +1310,7 @@
               <div>
                 <label
                   for="message"
-                  class="block text-sm font-medium text-gray-700 mb-2"
+                  class="block text-sm font-medium text-gray-700 mb-1"
                   >Message *</label
                 >
                 <textarea
