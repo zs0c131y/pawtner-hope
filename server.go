@@ -15,6 +15,11 @@ func main() {
 		http.ServeFile(w, r, "index.html")
 	})
 
+	// Serve the service.html file
+	http.HandleFunc("/service.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "service.html")
+	})
+
 	// Start the server on port 8080
 	log.Println("Server starting on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

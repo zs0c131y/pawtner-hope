@@ -104,18 +104,39 @@
       .btn-primary {
         background: var(--primary);
         color: white;
-        padding: 1rem 2.5rem;
+        padding: 0.875rem 2rem;
         border-radius: 50px;
         font-weight: 500;
         transition: all 0.3s ease;
         display: inline-block;
         text-decoration: none;
         border: 2px solid var(--primary);
+        font-size: 0.95rem;
       }
 
       .btn-primary:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 165, 116, 0.3);
+      }
+
+      .btn-secondary {
         background: transparent;
         color: var(--primary);
+        padding: 0.875rem 2rem;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+        border: 2px solid var(--primary);
+        font-size: 0.95rem;
+      }
+
+      .btn-secondary:hover {
+        background: var(--primary);
+        color: white;
         transform: translateY(-2px);
         box-shadow: 0 10px 25px rgba(212, 165, 116, 0.3);
       }
@@ -407,6 +428,11 @@
           font-size: 0.9rem;
         }
 
+        .btn-secondary {
+          padding: 0.875rem 2rem;
+          font-size: 0.9rem;
+        }
+
         .gallery-grid {
           grid-template-columns: 1fr;
           gap: 1rem;
@@ -438,12 +464,12 @@
         }
 
         section {
-          padding-top: 3rem;
-          padding-bottom: 3rem;
+          padding-top: 2rem;
+          padding-bottom: 2rem;
         }
 
         #home {
-          padding-top: 7rem;
+          padding-top: 6rem;
         }
 
         .form-input,
@@ -487,7 +513,8 @@
         }
 
         #home {
-          padding-top: 8rem;
+          padding-top: 7rem;
+          padding-bottom: 2rem;
         }
       }
 
@@ -593,13 +620,13 @@
         }
 
         .py-20 {
-          padding-top: 3rem;
-          padding-bottom: 3rem;
+          padding-top: 2rem;
+          padding-bottom: 2rem;
         }
 
         .py-16 {
-          padding-top: 2.5rem;
-          padding-bottom: 2.5rem;
+          padding-top: 2rem;
+          padding-bottom: 2rem;
         }
 
         .mb-16 {
@@ -764,16 +791,14 @@
           <!-- Logo -->
           <div class="flex items-center space-x-3">
             <div
-              class="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-400 rounded-full flex items-center justify-center"
+              class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center p-1.5"
             >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"
-                />
+              <svg class="w-full h-full" viewBox="0 0 24 24" fill="white">
+                <ellipse cx="8" cy="5" rx="2.5" ry="3" />
+                <ellipse cx="16" cy="5" rx="2.5" ry="3" />
+                <ellipse cx="4" cy="11" rx="2.5" ry="3" />
+                <ellipse cx="20" cy="11" rx="2.5" ry="3" />
+                <ellipse cx="12" cy="16" rx="5" ry="6" />
               </svg>
             </div>
             <span
@@ -795,6 +820,11 @@
               href="#gallery"
               class="nav-link text-gray-700 hover:text-amber-600"
               >Gallery</a
+            >
+            <a
+              href="service.html"
+              class="nav-link text-gray-700 hover:text-amber-600"
+              >Services</a
             >
             <a
               href="#contact"
@@ -866,6 +896,11 @@
               >Gallery</a
             >
             <a
+              href="service.html"
+              class="block py-2 text-gray-700 hover:text-amber-600"
+              >Services</a
+            >
+            <a
               href="#contact"
               class="block py-2 text-gray-700 hover:text-amber-600"
               >Contact</a
@@ -876,7 +911,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="pt-32 pb-20 px-6 hero-gradient">
+    <section id="home" class="pt-24 pb-12 px-6 hero-gradient">
       <div class="max-w-7xl mx-auto">
         <div class="grid md:grid-cols-2 gap-12 items-center">
           <div class="fade-in">
@@ -907,7 +942,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="py-16 bg-white">
+    <section class="py-10 bg-white">
       <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div class="stats-card">
@@ -931,7 +966,7 @@
     </section>
 
     <!-- Mission Video Section -->
-    <section class="py-20 px-6 bg-gradient-to-b from-white to-amber-50/30">
+    <section class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30">
       <div class="max-w-5xl mx-auto text-center">
         <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
           Our Mission in Action
@@ -975,7 +1010,7 @@
     </div>
 
     <!-- Available Pets Section -->
-    <section id="pets" class="py-20 px-6">
+    <section id="pets" class="py-12 px-6">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
@@ -1005,7 +1040,7 @@
     <!-- Gallery Section -->
     <section
       id="gallery"
-      class="py-20 px-6 bg-gradient-to-b from-white to-amber-50/30"
+      class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30"
     >
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
@@ -1064,7 +1099,7 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-20 px-6">
+    <section id="contact" class="py-12 px-6">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4" style="color: var(--dark)">
@@ -1189,28 +1224,6 @@
                   </div>
                 </div>
               </div>
-
-              <div
-                class="mt-8 p-6 bg-red-50 rounded-2xl border-2 border-red-200"
-              >
-                <h4 class="font-semibold text-red-900 mb-2 flex items-center">
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  Emergency Pet Rescue
-                </h4>
-                <p class="text-red-800 font-semibold">
-                  24/7 Helpline: +91 99999 88888
-                </p>
-              </div>
             </div>
           </div>
 
@@ -1320,16 +1333,14 @@
         <div class="text-center">
           <div class="flex items-center justify-center space-x-3 mb-4">
             <div
-              class="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-400 rounded-full flex items-center justify-center"
+              class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center p-1.5"
             >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"
-                />
+              <svg class="w-full h-full" viewBox="0 0 24 24" fill="white">
+                <ellipse cx="8" cy="5" rx="2.5" ry="3" />
+                <ellipse cx="16" cy="5" rx="2.5" ry="3" />
+                <ellipse cx="4" cy="11" rx="2.5" ry="3" />
+                <ellipse cx="20" cy="11" rx="2.5" ry="3" />
+                <ellipse cx="12" cy="16" rx="5" ry="6" />
               </svg>
             </div>
             <span
@@ -1463,7 +1474,10 @@
                         <h3 class="text-2xl font-semibold mb-2" style="color: var(--dark);">${pet.name}</h3>
                         <p class="text-gray-600 mb-4">${pet.breed} • ${pet.age}</p>
                         <p class="text-gray-500 mb-6">${pet.description}</p>
-                        <a href="#contact" class="btn-primary">Adopt ${pet.name}</a>
+                        <div class="flex gap-3">
+                            <a href="#contact" class="btn-primary">Adopt Now</a>
+                            <a href="#pets" class="btn-secondary">View Details</a>
+                        </div>
                     </div>
                 </div>
             `
