@@ -619,7 +619,7 @@
                     >
                       Preferred Time
                     </label>
-                    <input type="time" id="time" name="time" class="form-input" />
+                    <input type="time" id="time" name="time" min="08:00" max="22:00" class="form-input" />
                   </div>
                 </div>
 
@@ -769,6 +769,24 @@
         link.addEventListener("click", () => {
           mobileMenu.classList.remove("active");
         });
+      });
+
+      // Time input validation
+      const timeInput = document.getElementById("time");
+
+      timeInput.addEventListener("change", (e) => {
+        const selectedTime = e.target.value;
+        if (selectedTime) {
+          const [hours, minutes] = selectedTime.split(':').map(Number);
+          const timeInMinutes = hours * 60 + minutes;
+          const minTime = 8 * 60; // 08:00
+          const maxTime = 22 * 60; // 22:00
+
+          if (timeInMinutes < minTime || timeInMinutes > maxTime) {
+            alert("Please select a time between 08:00 AM and 10:00 PM");
+            e.target.value = "";
+          }
+        }
       });
 
       // Form submission
