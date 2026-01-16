@@ -104,7 +104,7 @@
       .btn-primary {
         background: var(--primary);
         color: white;
-        padding: 0.875rem 2rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 50px;
         font-weight: 500;
         transition: all 0.3s ease;
@@ -124,7 +124,7 @@
       .btn-secondary {
         background: transparent;
         color: var(--primary);
-        padding: 0.875rem 2rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 50px;
         font-weight: 500;
         transition: all 0.3s ease;
@@ -159,6 +159,19 @@
       .pet-card {
         position: relative;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .pet-card > div:last-child {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .pet-card .flex.gap-3 {
+        margin-top: auto;
       }
 
       .pet-card img {
@@ -424,12 +437,12 @@
         }
 
         .btn-primary {
-          padding: 0.875rem 2rem;
+          padding: 0.75rem 1.5rem;
           font-size: 0.9rem;
         }
 
         .btn-secondary {
-          padding: 0.875rem 2rem;
+          padding: 0.75rem 1.5rem;
           font-size: 0.9rem;
         }
 
@@ -586,7 +599,7 @@
         }
 
         .btn-primary {
-          padding: 0.75rem 2rem;
+          padding: 0.75rem 1.5rem;
         }
       }
 
@@ -1475,8 +1488,8 @@
                         <p class="text-gray-600 mb-4">${pet.breed} • ${pet.age}</p>
                         <p class="text-gray-500 mb-6">${pet.description}</p>
                         <div class="flex gap-3">
-                            <a href="#contact" class="btn-primary">Adopt Now</a>
-                            <a href="#pets" class="btn-secondary">View Details</a>
+                            <a href="#contact" class="btn-primary">Adopt Me</a>
+                            <a href="#pets" class="btn-secondary ml-auto">View Details</a>
                         </div>
                     </div>
                 </div>
