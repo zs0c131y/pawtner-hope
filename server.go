@@ -541,77 +541,6 @@ func getStatisticsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GET /api/demo - Demonstrate Go concepts
-func getDemoHandler(w http.ResponseWriter, r *http.Request) {
-	demo := map[string]interface{}{
-		"1_variables_and_types": map[string]interface{}{
-			"string_var":  serverVersion,
-			"int_var":     requestCount,
-			"float_var":   defaultTimeout,
-			"bool_var":    isProduction,
-			"time_var":    serverStartTime,
-			"description": "Basic variable types in Go",
-		},
-		"2_control_flow": map[string]interface{}{
-			"if_else_example": func() string {
-				if len(pets) > 5 {
-					return "We have many pets"
-				} else if len(pets) > 0 {
-					return "We have some pets"
-				} else {
-					return "No pets available"
-				}
-			}(),
-			"switch_example": func() string {
-				switch time.Now().Weekday() {
-				case time.Saturday, time.Sunday:
-					return "Weekend"
-				default:
-					return "Weekday"
-				}
-			}(),
-			"description": "If-else and switch statements",
-		},
-		"3_looping_examples": map[string]interface{}{
-			"for_loop_count": func() []int {
-				result := make([]int, 0)
-				for i := 0; i < 5; i++ {
-					result = append(result, i)
-				}
-				return result
-			}(),
-			"range_over_slice": func() []string {
-				names := make([]string, 0)
-				for _, pet := range pets {
-					names = append(names, pet.Name)
-				}
-				return names
-			}(),
-			"range_over_map": func() []string {
-				species := make([]string, 0)
-				for _, pet := range petsByID {
-					species = append(species, pet.Species)
-				}
-				return species
-			}(),
-			"description": "Different ways to loop in Go",
-		},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"success": true,
-		"data":    demo,
-	})
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func main() {
 	// Initialize data structures
 	initializeData()
@@ -686,7 +615,6 @@ func main() {
 	http.HandleFunc("/api/bookings", enableCORS(createBookingHandler))
 	http.HandleFunc("/api/contact", enableCORS(submitContactHandler))
 	http.HandleFunc("/api/statistics", enableCORS(getStatisticsHandler))
-	http.HandleFunc("/api/demo", enableCORS(getDemoHandler))
 
 	// Log initialization info
 	log.Println("==============================================")
@@ -704,7 +632,6 @@ func main() {
 	log.Println("  POST   /api/bookings      - Create booking")
 	log.Println("  POST   /api/contact       - Submit contact form")
 	log.Println("  GET    /api/statistics    - Get statistics")
-	log.Println("  GET    /api/demo          - Demo Go concepts")
 	log.Println("==============================================")
 	log.Println("Server starting on http://localhost:8080")
 
