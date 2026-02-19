@@ -1,22 +1,44 @@
-ARG GO_VERSION=1
-FROM golang:${GO_VERSION}-bookworm as builder
+# ---------- Builder Stage ----------
+ARG GO_VERSION=1.22
+FROM golang:${GO_VERSION}-bookworm AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
+# Cache dependencies first
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
+# Copy source
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o /run-app .
+
+# Build static binary
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w" -o run-app .
 
 
-FROM debian:bookworm
+# ---------- Runtime Stage ----------
+FROM debian:bookworm-slim
 
-# Install CA certificates so MongoDB TLS works
-RUN apt-get update && apt-get install -y ca-certificates \
+# Install CA certificates for MongoDB Atlas TLS
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /run-app /usr/local/bin/
+# Create non-root user
+RUN useradd -m appuser
+
+WORKDIR /app
+
+# Copy binary
+COPY --from=builder /app/run-app /usr/local/bin/run-app
+
+# Copy static HTML files
+COPY --from=builder /app/*.html /app/
+
+# Change ownership
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 8080
 
