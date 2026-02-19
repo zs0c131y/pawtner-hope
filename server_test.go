@@ -1,0 +1,620 @@
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+	"time"
+)
+
+// 9. UNIT TEST CASES
+
+func TestMain(m *testing.M) {
+	initializeData()
+	startWorkers()
+	os.Exit(m.Run())
+}
+
+// Test authentication logic, token generation, password validation
+
+func TestHashPassword(t *testing.T) {
+	h1 := hashPassword("secret")
+	h2 := hashPassword("secret")
+	if h1 != h2 {
+		t.Error("same password should produce same hash")
+	}
+	if h1 == "secret" {
+		t.Error("hash should not equal plaintext")
+	}
+}
+
+func TestRegister(t *testing.T) {
+	initializeData()
+
+	user, err := Register("test@example.com", "testuser", "pass123")
+	if err != nil {
+		t.Fatalf("Register failed: %v", err)
+	}
+	if user.Email != "test@example.com" {
+		t.Errorf("expected email test@example.com, got %s", user.Email)
+	}
+	if user.Password == "pass123" {
+		t.Error("password should be stored hashed")
+	}
+	if !user.IsActive {
+		t.Error("new user should be active")
+	}
+
+	_, err = Register("test@example.com", "other", "pass456")
+	if err != ErrUserAlreadyExists {
+		t.Errorf("expected ErrUserAlreadyExists, got %v", err)
+	}
+
+	_, err = Register("", "user", "pass")
+	if err == nil {
+		t.Error("expected error for empty email")
+	}
+}
+
+func TestLogin(t *testing.T) {
+	initializeData()
+	Register("login@example.com", "loginuser", "mypassword")
+
+	token, err := Login("login@example.com", "mypassword")
+	if err != nil {
+		t.Fatalf("Login failed: %v", err)
+	}
+	if token.Token == "" {
+		t.Error("token should not be empty")
+	}
+	if token.UserID == "" {
+		t.Error("token UserID should not be empty")
+	}
+
+	_, err = Login("login@example.com", "wrongpassword")
+	if err != ErrInvalidCredentials {
+		t.Errorf("expected ErrInvalidCredentials, got %v", err)
+	}
+
+	_, err = Login("notfound@example.com", "mypassword")
+	if err != ErrInvalidCredentials {
+		t.Errorf("expected ErrInvalidCredentials, got %v", err)
+	}
+
+	_, err = Login("", "")
+	if err != ErrInvalidCredentials {
+		t.Errorf("expected ErrInvalidCredentials, got %v", err)
+	}
+}
+
+func TestValidateToken(t *testing.T) {
+	initializeData()
+	Register("token@example.com", "tokenuser", "tokenpass")
+	token, _ := Login("token@example.com", "tokenpass")
+
+	user, err := ValidateToken(token.Token)
+	if err != nil {
+		t.Fatalf("ValidateToken failed: %v", err)
+	}
+	if user.Email != "token@example.com" {
+		t.Errorf("expected email token@example.com, got %s", user.Email)
+	}
+
+	_, err = ValidateToken("invalid-token-xyz")
+	if err != ErrInvalidCredentials {
+		t.Errorf("expected ErrInvalidCredentials for invalid token, got %v", err)
+	}
+
+	_, err = ValidateToken("")
+	if err != ErrInvalidCredentials {
+		t.Errorf("expected ErrInvalidCredentials for empty token, got %v", err)
+	}
+}
+
+// Test pet CRUD operations, validation logic
+
+func TestValidatePet(t *testing.T) {
+	valid, errs := validatePet(Pet{Name: "Max", Species: "Dog", Age: 3, Status: "Available"})
+	if !valid {
+		t.Errorf("expected valid pet, got errors: %v", errs)
+	}
+
+	valid, errs = validatePet(Pet{Species: "Dog", Age: 3, Status: "Available"})
+	if valid {
+		t.Error("expected invalid pet with missing name")
+	}
+	if len(errs) == 0 {
+		t.Error("expected validation errors for missing name")
+	}
+
+	valid, errs = validatePet(Pet{Name: "Max", Species: "Dog", Age: -1, Status: "Available"})
+	if valid {
+		t.Error("expected invalid pet with negative age")
+	}
+
+	valid, errs = validatePet(Pet{Name: "Max", Species: "Dog", Age: 3, Status: "Unknown"})
+	if valid {
+		t.Error("expected invalid pet with bad status")
+	}
+	_ = errs
+}
+
+func TestUpdatePet(t *testing.T) {
+	initializeData()
+
+	pet, err := UpdatePet("pet-001", Pet{Name: "Maximus"})
+	if err != nil {
+		t.Fatalf("UpdatePet failed: %v", err)
+	}
+	if pet.Name != "Maximus" {
+		t.Errorf("expected name Maximus, got %s", pet.Name)
+	}
+
+	_, err = UpdatePet("pet-999", Pet{Name: "Ghost"})
+	if err != ErrPetNotFound {
+		t.Errorf("expected ErrPetNotFound, got %v", err)
+	}
+}
+
+func TestDeletePet(t *testing.T) {
+	initializeData()
+
+	err := DeletePet("pet-003")
+	if err != nil {
+		t.Fatalf("DeletePet failed: %v", err)
+	}
+
+	if _, exists := petsByID["pet-003"]; exists {
+		t.Error("pet-003 should have been removed from map")
+	}
+
+	err = DeletePet("pet-003")
+	if err != ErrPetNotFound {
+		t.Errorf("expected ErrPetNotFound on second delete, got %v", err)
+	}
+}
+
+func TestGetPetByID(t *testing.T) {
+	initializeData()
+
+	pet, exists := petsByID["pet-001"]
+	if !exists {
+		t.Fatal("pet-001 should exist after initializeData")
+	}
+	if pet.Name != "Max" {
+		t.Errorf("expected Max, got %s", pet.Name)
+	}
+
+	_, exists = petsByID["pet-999"]
+	if exists {
+		t.Error("pet-999 should not exist")
+	}
+}
+
+// Test payment processing, receipt generation
+
+func TestProcessDonation(t *testing.T) {
+	initializeData()
+
+	donation := &Donation{
+		DonorName:     "Jane Doe",
+		DonorEmail:    "jane@example.com",
+		Amount:        500.00,
+		PaymentMethod: "UPI",
+	}
+	receipt, err := ProcessDonation(donation)
+	if err != nil {
+		t.Fatalf("ProcessDonation failed: %v", err)
+	}
+	if receipt.ReceiptID == "" {
+		t.Error("receipt ID should not be empty")
+	}
+	if receipt.Amount != 500.00 {
+		t.Errorf("expected amount 500.00, got %.2f", receipt.Amount)
+	}
+	if donation.Status != "Completed" {
+		t.Errorf("expected status Completed, got %s", donation.Status)
+	}
+
+	_, err = ProcessDonation(&Donation{DonorName: "A", DonorEmail: "a@b.com", Amount: -100, PaymentMethod: "UPI"})
+	if err != ErrInvalidPayment {
+		t.Errorf("expected ErrInvalidPayment for negative amount, got %v", err)
+	}
+
+	_, err = ProcessDonation(&Donation{DonorName: "", DonorEmail: "a@b.com", Amount: 100, PaymentMethod: "UPI"})
+	if err == nil {
+		t.Error("expected error for missing donor name")
+	}
+
+	_, err = ProcessDonation(&Donation{DonorName: "A", DonorEmail: "a@b.com", Amount: 100, PaymentMethod: ""})
+	if err == nil {
+		t.Error("expected error for missing payment method")
+	}
+}
+
+func TestGenerateReceipt(t *testing.T) {
+	donation := Donation{
+		ID:        "don-001",
+		DonorName: "John",
+		Amount:    1000.00,
+	}
+	receipt := GenerateReceipt(donation)
+	if receipt.DonationID != "don-001" {
+		t.Errorf("expected DonationID don-001, got %s", receipt.DonationID)
+	}
+	if receipt.Amount != 1000.00 {
+		t.Errorf("expected amount 1000.00, got %.2f", receipt.Amount)
+	}
+	if receipt.Message == "" {
+		t.Error("receipt message should not be empty")
+	}
+	if receipt.ReceiptID == "" {
+		t.Error("receipt ID should not be empty")
+	}
+}
+
+// Test search accuracy, filter combinations
+
+func TestSpeciesFilter(t *testing.T) {
+	initializeData()
+	f := SpeciesFilter{Species: "Dog"}
+	result := f.Filter(pets)
+	for _, p := range result {
+		if p.Species != "Dog" {
+			t.Errorf("expected Dog, got %s", p.Species)
+		}
+	}
+	if len(result) == 0 {
+		t.Error("expected at least one dog in sample data")
+	}
+	if f.Name() != "SpeciesFilter" {
+		t.Errorf("unexpected filter name: %s", f.Name())
+	}
+}
+
+func TestStatusFilter(t *testing.T) {
+	initializeData()
+	f := StatusFilter{Status: "Available"}
+	result := f.Filter(pets)
+	for _, p := range result {
+		if p.Status != "Available" {
+			t.Errorf("expected Available, got %s", p.Status)
+		}
+	}
+	if f.Name() != "StatusFilter" {
+		t.Errorf("unexpected filter name: %s", f.Name())
+	}
+}
+
+func TestAgeRangeFilter(t *testing.T) {
+	initializeData()
+	f := AgeRangeFilter{Min: 2, Max: 3}
+	result := f.Filter(pets)
+	for _, p := range result {
+		if p.Age < 2 || p.Age > 3 {
+			t.Errorf("age %d outside range [2,3]", p.Age)
+		}
+	}
+	if f.Name() != "AgeRangeFilter" {
+		t.Errorf("unexpected filter name: %s", f.Name())
+	}
+}
+
+func TestApplyFilters(t *testing.T) {
+	initializeData()
+	filters := []Filterable{
+		SpeciesFilter{Species: "Dog"},
+		StatusFilter{Status: "Available"},
+	}
+	result := ApplyFilters(pets, filters)
+	for _, p := range result {
+		if p.Species != "Dog" || p.Status != "Available" {
+			t.Errorf("filter mismatch: species=%s status=%s", p.Species, p.Status)
+		}
+	}
+}
+
+func TestSearchPets(t *testing.T) {
+	initializeData()
+
+	result, err := SearchPets("Max", nil)
+	if err != nil {
+		t.Fatalf("SearchPets failed: %v", err)
+	}
+	if len(result) == 0 {
+		t.Error("expected to find Max")
+	}
+
+	result, err = SearchPets("dog", nil)
+	if err != nil {
+		t.Fatalf("SearchPets by species failed: %v", err)
+	}
+	if len(result) == 0 {
+		t.Error("expected dogs in results")
+	}
+
+	_, err = SearchPets("", nil)
+	if err == nil {
+		t.Error("expected error for empty query with no filters")
+	}
+
+	result, err = SearchPets("", []Filterable{SpeciesFilter{Species: "Cat"}})
+	if err != nil {
+		t.Fatalf("SearchPets with filter failed: %v", err)
+	}
+	for _, p := range result {
+		if p.Species != "Cat" {
+			t.Errorf("expected Cat, got %s", p.Species)
+		}
+	}
+}
+
+// Test email delivery, retry mechanism
+
+func TestSendEmail(t *testing.T) {
+	emailShouldFail = false
+	err := SendEmail("test@example.com", "Subject", "Body")
+	if err != nil {
+		t.Errorf("SendEmail should succeed: %v", err)
+	}
+
+	err = SendEmail("", "Subject", "Body")
+	if err != ErrEmailFailed {
+		t.Errorf("expected ErrEmailFailed for empty to, got %v", err)
+	}
+
+	err = SendEmail("test@example.com", "", "Body")
+	if err != ErrEmailFailed {
+		t.Errorf("expected ErrEmailFailed for empty subject, got %v", err)
+	}
+}
+
+func TestSendEmailWithRetry(t *testing.T) {
+	emailShouldFail = false
+	err := SendEmailWithRetry("test@example.com", "Hello", "Body", 3)
+	if err != nil {
+		t.Errorf("SendEmailWithRetry should succeed: %v", err)
+	}
+
+	emailShouldFail = true
+	err = SendEmailWithRetry("test@example.com", "Hello", "Body", 3)
+	if err == nil {
+		t.Error("expected error when email should fail")
+	}
+	emailShouldFail = false
+}
+
+// Test JSON marshal and unmarshal
+
+func TestMarshalPet(t *testing.T) {
+	pet := Pet{
+		ID:      "pet-001",
+		Name:    "Max",
+		Species: "Dog",
+		Age:     3,
+		Status:  "Available",
+	}
+	data, err := MarshalPet(pet)
+	if err != nil {
+		t.Fatalf("MarshalPet failed: %v", err)
+	}
+	if len(data) == 0 {
+		t.Error("marshaled data should not be empty")
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		t.Fatalf("failed to parse marshaled JSON: %v", err)
+	}
+	if result["name"] != "Max" {
+		t.Errorf("expected name Max in JSON, got %v", result["name"])
+	}
+}
+
+func TestUnmarshalPet(t *testing.T) {
+	data := []byte(`{"id":"pet-010","name":"Buddy","species":"Dog","age":4,"status":"Available"}`)
+	pet, err := UnmarshalPet(data)
+	if err != nil {
+		t.Fatalf("UnmarshalPet failed: %v", err)
+	}
+	if pet.Name != "Buddy" {
+		t.Errorf("expected name Buddy, got %s", pet.Name)
+	}
+	if pet.Age != 4 {
+		t.Errorf("expected age 4, got %d", pet.Age)
+	}
+
+	_, err = UnmarshalPet([]byte("invalid json"))
+	if err == nil {
+		t.Error("expected error for invalid JSON")
+	}
+}
+
+func TestMarshalUnmarshalDonation(t *testing.T) {
+	donation := Donation{
+		ID:        "don-001",
+		DonorName: "Alice",
+		Amount:    250.00,
+		Status:    "Completed",
+	}
+	data, err := MarshalDonation(donation)
+	if err != nil {
+		t.Fatalf("MarshalDonation failed: %v", err)
+	}
+	result, err := UnmarshalDonation(data)
+	if err != nil {
+		t.Fatalf("UnmarshalDonation failed: %v", err)
+	}
+	if result.DonorName != "Alice" {
+		t.Errorf("expected Alice, got %s", result.DonorName)
+	}
+	if result.Amount != 250.00 {
+		t.Errorf("expected amount 250.00, got %.2f", result.Amount)
+	}
+}
+
+// Test middleware behavior, routing logic
+
+func TestCORSMiddleware(t *testing.T) {
+	handler := enableCORS(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("OPTIONS", "/api/pets", nil)
+	rr := httptest.NewRecorder()
+	handler(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200 for OPTIONS, got %d", rr.Code)
+	}
+	if rr.Header().Get("Access-Control-Allow-Origin") != "*" {
+		t.Error("expected Access-Control-Allow-Origin: *")
+	}
+
+	req = httptest.NewRequest("GET", "/api/pets", nil)
+	rr = httptest.NewRecorder()
+	handler(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200 for GET, got %d", rr.Code)
+	}
+}
+
+func TestGetPetsHandler(t *testing.T) {
+	initializeData()
+	startWorkers()
+
+	req := httptest.NewRequest("GET", "/api/pets", nil)
+	rr := httptest.NewRecorder()
+	getPetsHandler(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rr.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp["success"] != true {
+		t.Error("expected success true")
+	}
+}
+
+func TestAddPetHandler(t *testing.T) {
+	initializeData()
+	startWorkers()
+
+	body := bytes.NewBufferString(`{"name":"Buddy","species":"Dog","breed":"Labrador","age":2,"status":"Available"}`)
+	req := httptest.NewRequest("POST", "/api/pets", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	addPetHandler(rr, req)
+
+	if rr.Code != http.StatusCreated {
+		t.Errorf("expected 201, got %d", rr.Code)
+	}
+
+	body = bytes.NewBufferString(`{"species":"Dog","age":2,"status":"Available"}`)
+	req = httptest.NewRequest("POST", "/api/pets", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr = httptest.NewRecorder()
+	addPetHandler(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for missing name, got %d", rr.Code)
+	}
+}
+
+func TestRegisterHandler(t *testing.T) {
+	initializeData()
+
+	body := bytes.NewBufferString(`{"email":"handler@test.com","username":"handleruser","password":"pass123"}`)
+	req := httptest.NewRequest("POST", "/api/auth/register", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	registerHandler(rr, req)
+
+	if rr.Code != http.StatusCreated {
+		t.Errorf("expected 201, got %d", rr.Code)
+	}
+
+	body = bytes.NewBufferString(`{"email":"handler@test.com","username":"handleruser","password":"pass123"}`)
+	req = httptest.NewRequest("POST", "/api/auth/register", body)
+	rr = httptest.NewRecorder()
+	registerHandler(rr, req)
+
+	if rr.Code != http.StatusConflict {
+		t.Errorf("expected 409 for duplicate email, got %d", rr.Code)
+	}
+}
+
+func TestCreateDonationHandler(t *testing.T) {
+	initializeData()
+	startWorkers()
+
+	body := bytes.NewBufferString(`{"donorName":"Bob","donorEmail":"bob@test.com","amount":1000,"paymentMethod":"Card"}`)
+	req := httptest.NewRequest("POST", "/api/donations", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	createDonationHandler(rr, req)
+
+	if rr.Code != http.StatusCreated {
+		t.Errorf("expected 201, got %d", rr.Code)
+	}
+
+	body = bytes.NewBufferString(`{"donorName":"Bob","donorEmail":"bob@test.com","amount":-50,"paymentMethod":"Card"}`)
+	req = httptest.NewRequest("POST", "/api/donations", body)
+	rr = httptest.NewRecorder()
+	createDonationHandler(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for negative amount, got %d", rr.Code)
+	}
+}
+
+// Test pointers: call by value vs call by reference
+
+func TestUpdatePetStatusValue(t *testing.T) {
+	pet := Pet{Name: "Max", Status: "Available"}
+	updated := updatePetStatusValue(pet, "Adopted")
+
+	if pet.Status != "Available" {
+		t.Error("original pet should not be modified (call by value)")
+	}
+	if updated.Status != "Adopted" {
+		t.Errorf("returned pet should have status Adopted, got %s", updated.Status)
+	}
+}
+
+func TestUpdatePetStatusRef(t *testing.T) {
+	pet := Pet{Name: "Max", Status: "Available"}
+	updatePetStatusRef(&pet, "Adopted")
+
+	if pet.Status != "Adopted" {
+		t.Errorf("pet status should be Adopted after ref update, got %s", pet.Status)
+	}
+}
+
+func TestUpdateUserProfile(t *testing.T) {
+	user := User{Username: "old", Email: "old@test.com"}
+	UpdateUserProfile(&user, "newname", "new@test.com")
+
+	if user.Username != "newname" {
+		t.Errorf("expected username newname, got %s", user.Username)
+	}
+	if user.Email != "new@test.com" {
+		t.Errorf("expected email new@test.com, got %s", user.Email)
+	}
+}
+
+func TestUpdateToken(t *testing.T) {
+	token := AuthToken{Token: "tok_abc", ExpiresAt: time.Now().Add(-1 * time.Hour)}
+	UpdateToken(&token)
+
+	if token.ExpiresAt.Before(time.Now()) {
+		t.Error("token should be extended into the future")
+	}
+}

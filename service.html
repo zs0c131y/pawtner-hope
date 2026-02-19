@@ -226,19 +226,14 @@
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center space-x-8">
             <a
-              href="index.html#home"
+              href="index.html"
               class="nav-link text-gray-700 hover:text-amber-600"
               >Home</a
             >
             <a
-              href="index.html#pets"
+              href="adoption.html"
               class="nav-link text-gray-700 hover:text-amber-600"
-              >Available Pets</a
-            >
-            <a
-              href="index.html#gallery"
-              class="nav-link text-gray-700 hover:text-amber-600"
-              >Gallery</a
+              >Adopt</a
             >
             <a
               href="service.html"
@@ -246,10 +241,16 @@
               >Services</a
             >
             <a
+              href="donate.html"
+              class="nav-link text-gray-700 hover:text-amber-600"
+              >Donate</a
+            >
+            <a
               href="index.html#contact"
               class="nav-link text-gray-700 hover:text-amber-600"
               >Contact</a
             >
+            <a id="nav-auth-btn" href="auth.html" class="btn-primary">Login</a>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -300,19 +301,14 @@
           </button>
           <nav class="mt-8 space-y-4">
             <a
-              href="index.html#home"
+              href="index.html"
               class="block py-2 text-gray-700 hover:text-amber-600"
               >Home</a
             >
             <a
-              href="index.html#pets"
+              href="adoption.html"
               class="block py-2 text-gray-700 hover:text-amber-600"
-              >Available Pets</a
-            >
-            <a
-              href="index.html#gallery"
-              class="block py-2 text-gray-700 hover:text-amber-600"
-              >Gallery</a
+              >Adopt</a
             >
             <a
               href="service.html"
@@ -320,9 +316,21 @@
               >Services</a
             >
             <a
+              href="donate.html"
+              class="block py-2 text-gray-700 hover:text-amber-600"
+              >Donate</a
+            >
+            <a
               href="index.html#contact"
               class="block py-2 text-gray-700 hover:text-amber-600"
               >Contact</a
+            >
+            <a
+              id="mobile-auth-btn"
+              href="auth.html"
+              class="block py-3 mt-4 text-center text-white rounded-full"
+              style="background: var(--primary)"
+              >Login</a
             >
           </nav>
         </div>
@@ -792,23 +800,115 @@
       // Form submission
       const serviceForm = document.getElementById("service-form");
 
-      serviceForm.addEventListener("submit", (e) => {
+      serviceForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Show success message
-        document.getElementById("form-success").classList.remove("hidden");
+        // Get form data
+        const formData = {
+          serviceId: document.getElementById("service").value,
+          petName: document.getElementById("petName").value,
+          ownerName: document.getElementById("name").value,
+          email: document.getElementById("email").value,
+          phone: document.getElementById("phone").value,
+          date: document.getElementById("date").value,
+          time: document.getElementById("time").value,
+          notes: document.getElementById("message").value
+        };
 
-        // Reset form
-        serviceForm.reset();
+        try {
+          const response = await fetch('http://localhost:8080/api/bookings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
 
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-          document.getElementById("form-success").classList.add("hidden");
-        }, 5000);
+          if (response.ok) {
+            // Show success message
+            document.getElementById("form-success").classList.remove("hidden");
 
-        // Here you would typically send the data to your backend
-        console.log("Form submitted");
+            // Reset form
+            serviceForm.reset();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+              document.getElementById("form-success").classList.add("hidden");
+            }, 5000);
+          } else {
+            alert('Failed to submit booking. Please try again.');
+          }
+        } catch (error) {
+          console.error('Error submitting booking:', error);
+          alert('Failed to submit booking. Please try again later.');
+        }
       });
     </script>
+  <script>
+    (function() {
+      var token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      var isAdmin = localStorage.getItem('isAdmin') === 'true';
+      var dest = isAdmin ? 'admin.html' : 'dashboard.html';
+
+      function renderPill(username) {
+        var initial = (username || '?').charAt(0).toUpperCase();
+        ['nav-auth-btn', 'mobile-auth-btn'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.href = dest;
+          el.className = '';
+          el.style.cssText = 'display:inline-flex;align-items:center;gap:0.45rem;background:#2c2416;color:white;padding:0.28rem 0.75rem 0.28rem 0.28rem;border-radius:9999px;text-decoration:none;font-size:0.83rem;font-weight:500;line-height:1;font-family:"Work Sans",sans-serif;';
+          el.innerHTML = '<span style="width:27px;height:27px;min-width:27px;background:#d4a574;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.72rem;color:white;">' + initial + '</span><span>' + username + '</span>';
+        });
+      }
+
+      function lockField(id, value) {
+        var el = document.getElementById(id);
+        if (!el || !value) return;
+        el.value = value;
+        el.readOnly = true;
+        el.style.background = '#f5f0ea';
+        el.style.cursor = 'not-allowed';
+        el.style.borderColor = '#d4a574';
+        el.title = 'Pre-filled from your account';
+        var label = document.querySelector('label[for="' + id + '"]');
+        if (label && !label.querySelector('.lock-icon')) {
+          var lock = document.createElement('span');
+          lock.className = 'lock-icon';
+          lock.innerHTML = ' <i class="fas fa-lock" style="font-size:0.65rem;color:#d4a574;margin-left:0.25rem;"></i>';
+          label.appendChild(lock);
+        }
+      }
+
+      function applyAll(username, email) {
+        renderPill(username);
+        lockField('fullName', username);
+        lockField('email', email);
+      }
+
+      var cachedName = localStorage.getItem('username');
+      var cachedEmail = localStorage.getItem('userEmail');
+      if (cachedName && cachedEmail) {
+        applyAll(cachedName, cachedEmail);
+      } else {
+        fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+          .then(function(r) { return r.json(); })
+          .then(function(body) {
+            if (body.success && body.data) {
+              var u = body.data.username || '';
+              var e = body.data.email || '';
+              localStorage.setItem('username', u);
+              localStorage.setItem('userEmail', e);
+              localStorage.setItem('isAdmin', body.data.isAdmin ? 'true' : 'false');
+              dest = body.data.isAdmin ? 'admin.html' : 'dashboard.html';
+              applyAll(u, e);
+            }
+          })
+          .catch(function() { renderPill(cachedName || ''); });
+      }
+    })();
+  </script>
   </body>
 </html>

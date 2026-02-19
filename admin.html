@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Admin Dashboard - Pawtner Hope Foundation" />
+    <meta name="theme-color" content="#d4a574" />
+    <title>Admin Dashboard - Pawtner Hope Foundation</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+    />
+
+    <style>
+      :root {
+        --primary: #d4a574;
+        --primary-dark: #b8844f;
+        --secondary: #8b6f47;
+        --accent: #e8d5c4;
+        --dark: #2c2416;
+        --light: #faf8f5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Work Sans", sans-serif;
+        color: var(--dark);
+        background: var(--light);
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: "Playfair Display", serif;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 2rem 0;
+        overflow-y: auto;
+      }
+
+      .main-content {
+        margin-left: 260px;
+        padding: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          z-index: 1000;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 2rem;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+      }
+
+      .nav-item:hover,
+      .nav-item.active {
+        background: rgba(255, 255, 255, 0.1);
+        border-left-color: white;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        padding: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        color: var(--secondary);
+      }
+
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      tbody tr:hover {
+        background: #fafafa;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .badge-success {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 0.875rem;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .btn-secondary {
+        background: #6b7280;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #4b5563;
+      }
+
+      .section {
+        display: none;
+      }
+
+      .section.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="px-8 mb-8">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+            <i class="fas fa-paw text-2xl"></i>
+          </div>
+          <span class="text-xl font-bold">Pawtner Hope</span>
+        </div>
+        <p class="text-white/70 text-sm">Admin Dashboard</p>
+      </div>
+
+      <nav>
+        <a href="#" class="nav-item active" data-section="overview">
+          <i class="fas fa-chart-line"></i>
+          <span>Overview</span>
+        </a>
+        <a href="#" class="nav-item" data-section="pets">
+          <i class="fas fa-paw"></i>
+          <span>Manage Pets</span>
+        </a>
+        <a href="#" class="nav-item" data-section="adoptions">
+          <i class="fas fa-home"></i>
+          <span>Adoptions</span>
+        </a>
+        <a href="#" class="nav-item" data-section="bookings">
+          <i class="fas fa-calendar-check"></i>
+          <span>Bookings</span>
+        </a>
+        <a href="#" class="nav-item" data-section="donations">
+          <i class="fas fa-heart"></i>
+          <span>Donations</span>
+        </a>
+        <a href="#" class="nav-item" data-section="messages">
+          <i class="fas fa-envelope"></i>
+          <span>Messages</span>
+        </a>
+      </nav>
+
+      <div class="px-8 mt-auto absolute bottom-8">
+        <button onclick="logout()" class="btn btn-secondary w-full flex items-center justify-center gap-2">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="md:hidden mb-4 btn btn-primary">
+        <i class="fas fa-bars"></i> Menu
+      </button>
+
+      <!-- Overview Section -->
+      <section id="overview" class="section active">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Dashboard Overview</h1>
+          <p class="text-gray-600">Welcome back! Here's what's happening today.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-paw"></i></div>
+              <span class="text-2xl font-bold" id="stat-pets">0</span>
+            </div>
+            <p class="text-gray-600 text-sm">Total Pets</p>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-home"></i></div>
+              <span class="text-2xl font-bold" id="stat-adoptions">0</span>
+            </div>
+            <p class="text-gray-600 text-sm">Adoption Inquiries</p>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-calendar-check"></i></div>
+              <span class="text-2xl font-bold" id="stat-bookings">0</span>
+            </div>
+            <p class="text-gray-600 text-sm">Service Bookings</p>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-users"></i></div>
+              <span class="text-2xl font-bold" id="stat-users">0</span>
+            </div>
+            <p class="text-gray-600 text-sm">Total Users</p>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="table-container">
+          <h2 class="text-xl font-bold mb-4">Recent Adoption Inquiries</h2>
+          <div id="recent-adoptions">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Pets Section -->
+      <section id="pets" class="section">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Manage Pets</h1>
+          <p class="text-gray-600">View and manage all pets in the system</p>
+        </div>
+
+        <div class="table-container">
+          <div id="pets-table">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Adoptions Section -->
+      <section id="adoptions" class="section">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Adoption Inquiries</h1>
+          <p class="text-gray-600">Manage adoption requests</p>
+        </div>
+
+        <div class="table-container">
+          <div id="adoptions-table">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Bookings Section -->
+      <section id="bookings" class="section">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Service Bookings</h1>
+          <p class="text-gray-600">Manage service appointments</p>
+        </div>
+
+        <div class="table-container">
+          <div id="bookings-table">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Donations Section -->
+      <section id="donations" class="section">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Donations</h1>
+          <p class="text-gray-600">View donation history</p>
+        </div>
+
+        <div class="table-container">
+          <div id="donations-table">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Messages Section -->
+      <section id="messages" class="section">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold mb-2">Contact Messages</h1>
+          <p class="text-gray-600">Messages from visitors</p>
+        </div>
+
+        <div class="table-container">
+          <div id="messages-table">
+            <p class="text-gray-500 text-center py-8">Contact messages will be displayed here</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Check authentication and admin role
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        window.location.href = 'auth.html';
+      } else if (localStorage.getItem('isAdmin') !== 'true') {
+        window.location.href = 'dashboard.html';
+      }
+
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const sidebar = document.getElementById('sidebar');
+
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('active');
+        });
+      }
+
+      // Navigation
+      const navItems = document.querySelectorAll('.nav-item');
+      const sections = document.querySelectorAll('.section');
+
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetSection = item.dataset.section;
+
+          // Update active states
+          navItems.forEach(nav => nav.classList.remove('active'));
+          item.classList.add('active');
+
+          sections.forEach(section => {
+            section.classList.remove('active');
+            if (section.id === targetSection) {
+              section.classList.add('active');
+            }
+          });
+
+          // Load data for the section
+          loadSectionData(targetSection);
+
+          // Close mobile menu
+          if (window.innerWidth < 768) {
+            sidebar.classList.remove('active');
+          }
+        });
+      });
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('isAdmin');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userEmail');
+        window.location.href = 'auth.html';
+      }
+
+      // Load statistics
+      async function loadStatistics() {
+        try {
+          const response = await fetch('/api/statistics');
+          const stats = await response.json();
+
+          document.getElementById('stat-pets').textContent = stats.totalPets || 0;
+          document.getElementById('stat-adoptions').textContent = stats.totalRequests || 0;
+          document.getElementById('stat-bookings').textContent = stats.totalBookings || 0;
+          document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+        } catch (error) {
+          console.error('Error loading statistics:', error);
+        }
+      }
+
+      // Load section data
+      async function loadSectionData(section) {
+        switch(section) {
+          case 'overview':
+            loadStatistics();
+            loadRecentAdoptions();
+            break;
+          case 'pets':
+            loadPets();
+            break;
+          case 'adoptions':
+            loadAdoptions();
+            break;
+          case 'bookings':
+            loadBookings();
+            break;
+          case 'donations':
+            loadDonations();
+            break;
+        }
+      }
+
+      // Load recent adoptions
+      async function loadRecentAdoptions() {
+        try {
+          const response = await fetch('/api/adoptions');
+          const adoptions = await response.json();
+          
+          if (!adoptions || adoptions.length === 0) {
+            document.getElementById('recent-adoptions').innerHTML = '<p class="text-gray-500 text-center py-4">No adoption inquiries yet</p>';
+            return;
+          }
+
+          const recentAdoptions = adoptions.slice(0, 5);
+          document.getElementById('recent-adoptions').innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Pet ID</th>
+                  <th>Adopter Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recentAdoptions.map(adoption => `
+                  <tr>
+                    <td>${adoption.petId}</td>
+                    <td>${adoption.adopterName}</td>
+                    <td>${adoption.email}</td>
+                    <td>${adoption.phone}</td>
+                    <td><span class="badge badge-${adoption.status === 'Pending' ? 'warning' : adoption.status === 'Approved' ? 'success' : 'info'}">${adoption.status}</span></td>
+                    <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } catch (error) {
+          console.error('Error loading adoptions:', error);
+          document.getElementById('recent-adoptions').innerHTML = '<p class="text-red-500 text-center py-4">Failed to load adoption inquiries</p>';
+        }
+      }
+
+      // Load pets
+      async function loadPets() {
+        try {
+          const response = await fetch('/api/pets');
+          const pets = await response.json();
+
+          document.getElementById('pets-table').innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Species</th>
+                  <th>Breed</th>
+                  <th>Age</th>
+                  <th>Status</th>
+                  <th>Vaccinated</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pets.map(pet => `
+                  <tr>
+                    <td>${pet.id}</td>
+                    <td>${pet.name}</td>
+                    <td>${pet.species}</td>
+                    <td>${pet.breed}</td>
+                    <td>${pet.age} years</td>
+                    <td><span class="badge badge-${pet.status === 'Available' ? 'success' : 'warning'}">${pet.status}</span></td>
+                    <td>${pet.isVaccinated ? '✓ Yes' : '✗ No'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } catch (error) {
+          console.error('Error loading pets:', error);
+        }
+      }
+
+      // Load adoptions
+      async function loadAdoptions() {
+        try {
+          const response = await fetch('/api/adoptions');
+          const adoptions = await response.json();
+
+          if (!adoptions || adoptions.length === 0) {
+            document.getElementById('adoptions-table').innerHTML = '<p class="text-gray-500 text-center py-8">No adoption inquiries yet</p>';
+            return;
+          }
+
+          document.getElementById('adoptions-table').innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Pet ID</th>
+                  <th>Adopter Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${adoptions.map(adoption => `
+                  <tr>
+                    <td>${adoption.id}</td>
+                    <td>${adoption.petId}</td>
+                    <td>${adoption.adopterName}</td>
+                    <td>${adoption.email}</td>
+                    <td>${adoption.phone}</td>
+                    <td><span class="badge badge-${adoption.status === 'Pending' ? 'warning' : adoption.status === 'Approved' ? 'success' : 'info'}">${adoption.status}</span></td>
+                    <td>${adoption.message.substring(0, 50)}...</td>
+                    <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } catch (error) {
+          console.error('Error loading adoptions:', error);
+        }
+      }
+
+      // Load bookings
+      async function loadBookings() {
+        document.getElementById('bookings-table').innerHTML = '<p class="text-gray-500 text-center py-8">Bookings data will be displayed here</p>';
+      }
+
+      // Load donations
+      async function loadDonations() {
+        try {
+          const response = await fetch('/api/donations');
+          const donations = await response.json();
+
+          if (!donations || donations.length === 0) {
+            document.getElementById('donations-table').innerHTML = '<p class="text-gray-500 text-center py-8">No donations yet</p>';
+            return;
+          }
+
+          document.getElementById('donations-table').innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Donor Name</th>
+                  <th>Email</th>
+                  <th>Amount</th>
+                  <th>Payment Method</th>
+                  <th>Transaction ID</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${donations.map(donation => `
+                  <tr>
+                    <td>${donation.id}</td>
+                    <td>${donation.donorName}</td>
+                    <td>${donation.donorEmail}</td>
+                    <td>₹${donation.amount.toLocaleString()}</td>
+                    <td>${donation.paymentMethod}</td>
+                    <td>${donation.transactionId}</td>
+                    <td><span class="badge badge-${donation.status === 'Completed' ? 'success' : donation.status === 'Pending' ? 'warning' : 'info'}">${donation.status}</span></td>
+                    <td>${new Date(donation.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } catch (error) {
+          console.error('Error loading donations:', error);
+        }
+      }
+
+      // Initialize
+      loadStatistics();
+      loadRecentAdoptions();
+    </script>
+  </body>
+</html>
