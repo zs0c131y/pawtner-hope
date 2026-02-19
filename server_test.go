@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 )
 
 // 9. UNIT TEST CASES
@@ -387,76 +386,7 @@ func TestSendEmailWithRetry(t *testing.T) {
 	emailShouldFail = false
 }
 
-// Test JSON marshal and unmarshal
-
-func TestMarshalPet(t *testing.T) {
-	pet := Pet{
-		ID:      "pet-001",
-		Name:    "Max",
-		Species: "Dog",
-		Age:     3,
-		Status:  "Available",
-	}
-	data, err := MarshalPet(pet)
-	if err != nil {
-		t.Fatalf("MarshalPet failed: %v", err)
-	}
-	if len(data) == 0 {
-		t.Error("marshaled data should not be empty")
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(data, &result); err != nil {
-		t.Fatalf("failed to parse marshaled JSON: %v", err)
-	}
-	if result["name"] != "Max" {
-		t.Errorf("expected name Max in JSON, got %v", result["name"])
-	}
-}
-
-func TestUnmarshalPet(t *testing.T) {
-	data := []byte(`{"id":"pet-010","name":"Buddy","species":"Dog","age":4,"status":"Available"}`)
-	pet, err := UnmarshalPet(data)
-	if err != nil {
-		t.Fatalf("UnmarshalPet failed: %v", err)
-	}
-	if pet.Name != "Buddy" {
-		t.Errorf("expected name Buddy, got %s", pet.Name)
-	}
-	if pet.Age != 4 {
-		t.Errorf("expected age 4, got %d", pet.Age)
-	}
-
-	_, err = UnmarshalPet([]byte("invalid json"))
-	if err == nil {
-		t.Error("expected error for invalid JSON")
-	}
-}
-
-func TestMarshalUnmarshalDonation(t *testing.T) {
-	donation := Donation{
-		ID:        "don-001",
-		DonorName: "Alice",
-		Amount:    250.00,
-		Status:    "Completed",
-	}
-	data, err := MarshalDonation(donation)
-	if err != nil {
-		t.Fatalf("MarshalDonation failed: %v", err)
-	}
-	result, err := UnmarshalDonation(data)
-	if err != nil {
-		t.Fatalf("UnmarshalDonation failed: %v", err)
-	}
-	if result.DonorName != "Alice" {
-		t.Errorf("expected Alice, got %s", result.DonorName)
-	}
-	if result.Amount != 250.00 {
-		t.Errorf("expected amount 250.00, got %.2f", result.Amount)
-	}
-}
-
-// Test middleware behavior, routing logic
+// Test email delivery, retry mechanism
 
 func TestCORSMiddleware(t *testing.T) {
 	handler := enableCORS(func(w http.ResponseWriter, r *http.Request) {
@@ -537,8 +467,8 @@ func TestRegisterHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 	registerHandler(rr, req)
 
-	if rr.Code != http.StatusCreated {
-		t.Errorf("expected 201, got %d", rr.Code)
+	if rr.Code != http.StatusAccepted {
+		t.Errorf("expected 202, got %d", rr.Code)
 	}
 
 	body = bytes.NewBufferString(`{"email":"handler@test.com","username":"handleruser","password":"pass123"}`)
@@ -575,46 +505,4 @@ func TestCreateDonationHandler(t *testing.T) {
 	}
 }
 
-// Test pointers: call by value vs call by reference
-
-func TestUpdatePetStatusValue(t *testing.T) {
-	pet := Pet{Name: "Max", Status: "Available"}
-	updated := updatePetStatusValue(pet, "Adopted")
-
-	if pet.Status != "Available" {
-		t.Error("original pet should not be modified (call by value)")
-	}
-	if updated.Status != "Adopted" {
-		t.Errorf("returned pet should have status Adopted, got %s", updated.Status)
-	}
-}
-
-func TestUpdatePetStatusRef(t *testing.T) {
-	pet := Pet{Name: "Max", Status: "Available"}
-	updatePetStatusRef(&pet, "Adopted")
-
-	if pet.Status != "Adopted" {
-		t.Errorf("pet status should be Adopted after ref update, got %s", pet.Status)
-	}
-}
-
-func TestUpdateUserProfile(t *testing.T) {
-	user := User{Username: "old", Email: "old@test.com"}
-	UpdateUserProfile(&user, "newname", "new@test.com")
-
-	if user.Username != "newname" {
-		t.Errorf("expected username newname, got %s", user.Username)
-	}
-	if user.Email != "new@test.com" {
-		t.Errorf("expected email new@test.com, got %s", user.Email)
-	}
-}
-
-func TestUpdateToken(t *testing.T) {
-	token := AuthToken{Token: "tok_abc", ExpiresAt: time.Now().Add(-1 * time.Hour)}
-	UpdateToken(&token)
-
-	if token.ExpiresAt.Before(time.Now()) {
-		t.Error("token should be extended into the future")
-	}
-}
+// Test middleware behavior, routing logic

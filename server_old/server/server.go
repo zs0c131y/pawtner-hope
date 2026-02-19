@@ -39,6 +39,7 @@ type Filterable interface {
 }
 
 // 4. MAP AND STRUCTS
+
 type Pet struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -52,6 +53,13 @@ type Pet struct {
 	CreatedAt    time.Time         `json:"createdAt"`
 	Tags         []string          `json:"tags"`       // 3. ARRAY AND SLICE
 	Attributes   map[string]string `json:"attributes"` // 4. MAP AND STRUCTS
+}
+
+type Medical struct {
+	Vaccinated  bool     `json:"vaccinated"`
+	Medications []string `json:"medications"`
+	LastCheckup string   `json:"lastCheckup"`
+	HealthNotes string   `json:"healthNotes"`
 }
 
 type Service struct {
@@ -198,10 +206,16 @@ func loadEnv(filename string) {
 // 1. VARIABLES, VALUES AND TYPES
 var (
 	serverStartTime time.Time = time.Now()
+	requestCount    int       = 0
 	serverVersion   string    = "1.0.0"
+	isProduction    bool      = false
 	maxPets         int       = 100
+	defaultTimeout  float64   = 30.0
 
 	// 3. ARRAY AND SLICE
+	petCategories [4]string = [4]string{"Dogs", "Cats", "Birds", "Others"}
+	priorities    [3]int    = [3]int{1, 2, 3}
+
 	pets            []Pet
 	services        []Service
 	contactMessages []ContactForm
@@ -209,6 +223,7 @@ var (
 	users           []User
 	donations       []Donation
 	inquiries       []AdoptionInquiry
+	allowedOrigins  []string
 
 	// 4. MAP AND STRUCTS
 	petsByID     map[string]*Pet
@@ -254,6 +269,7 @@ func initializeData() {
 	users = make([]User, 0)
 	donations = make([]Donation, 0)
 	inquiries = make([]AdoptionInquiry, 0)
+	allowedOrigins = []string{"http://localhost:8080", "http://127.0.0.1:8080", "https://pawtnerhope.angelblessy.com"}
 
 	notificationCh = make(chan NotificationJob, 100)
 	paymentCh = make(chan Donation, 50)
@@ -489,7 +505,28 @@ func ApplyFilters(petList []Pet, filters []Filterable) []Pet {
 	return result
 }
 
+// 7. POINTERS, CALL BY VALUE AND CALL BY REFERENCE
+
+func updatePetStatusValue(pet Pet, status string) Pet {
+	pet.Status = status
+	return pet
+}
+
+func updatePetStatusRef(pet *Pet, status string) {
+	pet.Status = status
+}
+
+func UpdateUserProfile(user *User, username, email string) {
+	user.Username = username
+	user.Email = email
+}
+
+func UpdateToken(token *AuthToken) {
+	token.ExpiresAt = time.Now().Add(24 * time.Hour)
+}
+
 // 5. FUNCTIONS AND ERROR HANDLING
+
 func hashPassword(password string) string {
 	return fmt.Sprintf("hashed_%s_pawtnersalt", password)
 }
@@ -1090,6 +1127,35 @@ func SearchPets(query string, filters []Filterable) ([]Pet, error) {
 	return result, nil
 }
 
+// 8. JSON MARSHAL AND UNMARSHAL
+
+func MarshalPet(pet Pet) ([]byte, error) {
+	return json.Marshal(pet)
+}
+
+func UnmarshalPet(data []byte) (*Pet, error) {
+	var pet Pet
+	if err := json.Unmarshal(data, &pet); err != nil {
+		return nil, err
+	}
+	return &pet, nil
+}
+
+func MarshalDonation(donation Donation) ([]byte, error) {
+	return json.Marshal(donation)
+}
+
+func UnmarshalDonation(data []byte) (*Donation, error) {
+	var donation Donation
+	if err := json.Unmarshal(data, &donation); err != nil {
+		return nil, err
+	}
+	return &donation, nil
+}
+
+// 10. CONCURRENCY
+
+// 11. GOROUTINES AND CHANNELS
 func emailWorker(jobs <-chan NotificationJob) {
 	for job := range jobs {
 		SendEmailWithRetry(job.To, job.Subject, job.Body, 3)
@@ -1138,6 +1204,51 @@ func confirmationListener(confirmations <-chan PaymentConfirmation) {
 	}
 }
 
+func parallelSearch(criteria map[string]string) []Pet {
+	type searchResult struct {
+		pets []Pet
+	}
+	resultCh := make(chan searchResult, len(criteria))
+
+	mu.Lock()
+	petsCopy := make([]Pet, len(pets))
+	copy(petsCopy, pets)
+	mu.Unlock()
+
+	var wg sync.WaitGroup
+	for key, value := range criteria {
+		wg.Add(1)
+		go func(k, v string) {
+			defer wg.Done()
+			var filters []Filterable
+			switch k {
+			case "species":
+				filters = append(filters, SpeciesFilter{Species: v})
+			case "status":
+				filters = append(filters, StatusFilter{Status: v})
+			}
+			resultCh <- searchResult{pets: ApplyFilters(petsCopy, filters)}
+		}(key, value)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	seen := make(map[string]bool)
+	var combined []Pet
+	for r := range resultCh {
+		for _, p := range r.pets {
+			if !seen[p.ID] {
+				seen[p.ID] = true
+				combined = append(combined, p)
+			}
+		}
+	}
+	return combined
+}
+
 func startWorkers() {
 	// 11. GOROUTINES AND CHANNELS
 	go emailWorker(notificationCh)
@@ -1162,6 +1273,16 @@ func recoverPanic(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}()
 		next(w, r)
+	}
+}
+
+// Request logging middleware
+func logRequest(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		log.Printf("[REQUEST] %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
+		next(w, r)
+		log.Printf("[RESPONSE] %s %s completed in %v", r.Method, r.URL.Path, time.Since(start))
 	}
 }
 
@@ -1210,7 +1331,21 @@ func respondError(w http.ResponseWriter, statusCode int, message string) {
 	})
 }
 
+// Input sanitization helper (basic XSS prevention)
+func sanitizeString(s string) string {
+	// Remove potentially harmful characters
+	s = strings.TrimSpace(s)
+	// Basic HTML entity encoding for display in web context
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, "\"", "&quot;")
+	s = strings.ReplaceAll(s, "'", "&#39;")
+	return s
+}
+
 func getPetsHandler(w http.ResponseWriter, r *http.Request) {
+	requestCount++
+
 	query := r.URL.Query()
 	species := query.Get("species")
 	status := query.Get("status")
@@ -1489,9 +1624,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	mu.Lock()
 	_, alreadyExists := usersByEmail[req.Email]
-	_, pendingExists := pendingRegs[req.Email]
 	mu.Unlock()
-	if alreadyExists || pendingExists {
+	if alreadyExists {
 		respondError(w, http.StatusConflict, ErrUserAlreadyExists.Error())
 		return
 	}
@@ -1760,6 +1894,8 @@ func getStatisticsHandler(w http.ResponseWriter, r *http.Request) {
 	stats := calculateStatistics()
 	stats["serverVersion"] = serverVersion
 	stats["uptime"] = time.Since(serverStartTime).String()
+	stats["requestCount"] = requestCount
+	stats["isProduction"] = isProduction
 	stats["serviceStats"] = serviceStats
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
