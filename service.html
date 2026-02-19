@@ -803,20 +803,18 @@
       serviceForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Get form data
-        const formData = {
-          serviceId: document.getElementById("service").value,
-          petName: document.getElementById("petName").value,
-          ownerName: document.getElementById("name").value,
-          email: document.getElementById("email").value,
-          phone: document.getElementById("phone").value,
-          date: document.getElementById("date").value,
-          time: document.getElementById("time").value,
-          notes: document.getElementById("message").value
-        };
-
         try {
-          const response = await fetch('http://localhost:8080/api/bookings', {
+          const formData = {
+            serviceId: document.getElementById("service").value,
+            ownerName: document.getElementById("fullName").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            date: document.getElementById("date").value,
+            time: document.getElementById("time").value,
+            notes: document.getElementById("message").value
+          };
+
+          const response = await fetch('/api/bookings', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

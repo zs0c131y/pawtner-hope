@@ -93,7 +93,7 @@ type User struct {
 	Username  string    `json:"username"`
 	Password  string    `json:"-"` // excluded from JSON output
 	Role      string    `json:"role"`
-	IsAdmin   bool      `json:"isAdmin" bson:"isadmin"`
+	IsAdmin   bool      `json:"isadmin" bson:"isadmin"`
 	CreatedAt time.Time `json:"createdAt"`
 	IsActive  bool      `json:"isActive"`
 }
@@ -103,7 +103,7 @@ type AuthToken struct {
 	UserID    string    `json:"userId"`
 	ExpiresAt time.Time `json:"expiresAt"`
 	Role      string    `json:"role"`
-	IsAdmin   bool      `json:"isAdmin"`
+	IsAdmin   bool      `json:"isadmin"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 }
@@ -367,6 +367,20 @@ func initializeData() {
 			"available": sampleServices[i].Available,
 		}
 	}
+
+	// Seed default admin user
+	adminUser := User{
+		ID:        "usr-admin",
+		Email:     "admin@pawtner.com",
+		Username:  "admin",
+		Password:  hashPassword("admin123"),
+		Role:      "admin",
+		IsAdmin:   true,
+		CreatedAt: time.Now(),
+		IsActive:  true,
+	}
+	users = append(users, adminUser)
+	usersByEmail[adminUser.Email] = &users[len(users)-1]
 }
 
 // 2. CONTROL FLOW
@@ -989,8 +1003,28 @@ func loadFromMongoDB() {
 			mu.Lock()
 			users = dbUsers
 			usersByEmail = make(map[string]*User)
+			hasAdmin := false
 			for i := range users {
 				usersByEmail[users[i].Email] = &users[i]
+				if users[i].IsAdmin {
+					hasAdmin = true
+				}
+			}
+			// Always ensure a default admin account exists
+			if !hasAdmin {
+				adminUser := User{
+					ID:        "usr-admin",
+					Email:     "admin@pawtner.com",
+					Username:  "admin",
+					Password:  hashPassword("admin123"),
+					Role:      "admin",
+					IsAdmin:   true,
+					CreatedAt: time.Now(),
+					IsActive:  true,
+				}
+				users = append(users, adminUser)
+				usersByEmail[adminUser.Email] = &users[len(users)-1]
+				syncUserToDB(adminUser)
 			}
 			mu.Unlock()
 			log.Printf("[MONGO] Loaded %d users", len(users))
@@ -1391,6 +1425,19 @@ func getServicesHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func getBookingsHandler(w http.ResponseWriter, _ *http.Request) {
+	mu.Lock()
+	result := make([]ServiceBooking, len(bookings))
+	copy(result, bookings)
+	mu.Unlock()
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"success": true,
+		"count":   len(result),
+		"data":    result,
+	})
+}
+
 func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 	var booking ServiceBooking
 
@@ -1639,7 +1686,7 @@ func meHandler(w http.ResponseWriter, r *http.Request) {
 			"email":     user.Email,
 			"username":  user.Username,
 			"role":      user.Role,
-			"isAdmin":   user.IsAdmin,
+			"isadmin":   user.IsAdmin,
 			"createdAt": user.CreatedAt,
 		},
 	})
@@ -1847,7 +1894,16 @@ func main() {
 	})))
 
 	http.HandleFunc("/api/services", recoverPanic(enableCORS(getServicesHandler)))
-	http.HandleFunc("/api/bookings", recoverPanic(enableCORS(createBookingHandler)))
+	http.HandleFunc("/api/bookings", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			getBookingsHandler(w, r)
+		case "POST":
+			createBookingHandler(w, r)
+		default:
+			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		}
+	})))
 	http.HandleFunc("/api/contact", recoverPanic(enableCORS(submitContactHandler)))
 	http.HandleFunc("/api/statistics", recoverPanic(enableCORS(getStatisticsHandler)))
 
@@ -1912,6 +1968,10 @@ func main() {
 	log.Printf("Initialized with %d pets\n", len(pets))
 	log.Printf("Initialized with %d services\n", len(services))
 	log.Println("==============================================")
+	log.Println("Default admin login:")
+	log.Println("  Email:    admin@pawtner.com")
+	log.Println("  Password: admin123")
+	log.Println("==============================================")
 	log.Println("API Endpoints:")
 	log.Println("  GET    /api/pets              - Get all pets")
 	log.Println("  GET    /api/pets/:id          - Get pet by ID")
@@ -1919,6 +1979,7 @@ func main() {
 	log.Println("  PUT    /api/pets/:id          - Update pet")
 	log.Println("  DELETE /api/pets/:id          - Delete pet")
 	log.Println("  GET    /api/services          - Get all services")
+	log.Println("  GET    /api/bookings          - Get all bookings")
 	log.Println("  POST   /api/bookings          - Create booking")
 	log.Println("  POST   /api/contact           - Submit contact form")
 	log.Println("  GET    /api/statistics        - Get statistics")

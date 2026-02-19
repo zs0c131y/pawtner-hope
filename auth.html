@@ -466,12 +466,12 @@
             localStorage.setItem('authToken', tokenData.token);
             localStorage.setItem('userId', tokenData.userId);
             localStorage.setItem('userRole', tokenData.role);
-            localStorage.setItem('isAdmin', tokenData.isAdmin ? 'true' : 'false');
+            localStorage.setItem('isAdmin', tokenData.isadmin ? 'true' : 'false');
             localStorage.setItem('username', tokenData.username || '');
             localStorage.setItem('userEmail', tokenData.email || '');
 
             // Redirect based on role
-            window.location.href = tokenData.isAdmin ? 'admin.html' : 'dashboard.html';
+            window.location.href = tokenData.isadmin ? 'admin.html' : 'dashboard.html';
           } else {
             loginError.textContent = data.error || 'Invalid credentials. Please try again.';
             loginError.classList.remove('hidden');

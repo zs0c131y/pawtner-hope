@@ -529,7 +529,7 @@
 
         // Sync role to localStorage in case it changed server-side
         localStorage.setItem('userRole', user.role);
-        if (user.isAdmin) {
+        if (user.isadmin) {
           localStorage.setItem('isAdmin', 'true');
           window.location.href = 'admin.html';
         }
