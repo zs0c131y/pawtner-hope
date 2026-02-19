@@ -269,7 +269,7 @@ func initializeData() {
 	users = make([]User, 0)
 	donations = make([]Donation, 0)
 	inquiries = make([]AdoptionInquiry, 0)
-	allowedOrigins = []string{"http://localhost:8080", "http://127.0.0.1:8080"}
+	allowedOrigins = []string{"http://localhost:8080", "http://127.0.0.1:8080", "https://pawtnerhope.angelblessy.com"}
 
 	notificationCh = make(chan NotificationJob, 100)
 	paymentCh = make(chan Donation, 50)
