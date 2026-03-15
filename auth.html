@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
@@ -54,7 +54,11 @@
       body {
         font-family: "Work Sans", sans-serif;
         color: var(--dark);
-        background: linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(232, 213, 196, 0.2) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(212, 165, 116, 0.1) 0%,
+          rgba(232, 213, 196, 0.2) 100%
+        );
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -87,14 +91,18 @@
         .auth-container {
           grid-template-columns: 1fr;
         }
-        
+
         .auth-sidebar {
           display: none;
         }
       }
 
       .auth-sidebar {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
         padding: 3rem;
         display: flex;
         flex-direction: column;
@@ -226,13 +234,16 @@
     <div class="auth-container">
       <!-- Sidebar -->
       <div class="auth-sidebar">
-        <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mb-6">
+        <div
+          class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mb-6"
+        >
           <i class="fas fa-paw text-4xl"></i>
         </div>
         <h2 class="text-3xl font-bold mb-4">Welcome to</h2>
         <h3 class="text-4xl font-bold mb-6">Pawtner Hope</h3>
         <p class="text-white/90 mb-8">
-          Join our community of animal lovers dedicated to rescuing and rehoming pets in need.
+          Join our community of animal lovers dedicated to rescuing and rehoming
+          pets in need.
         </p>
         <div class="space-y-3 w-full">
           <div class="flex items-center gap-3 bg-white/10 rounded-xl p-3">
@@ -265,12 +276,17 @@
 
         <!-- Login Form -->
         <div id="login-tab" class="tab-content active">
-          <h2 class="text-2xl font-bold mb-6" style="color: var(--dark)">Welcome Back!</h2>
-          
+          <h2 class="text-2xl font-bold mb-6" style="color: var(--dark)">
+            Welcome Back!
+          </h2>
+
           <form id="login-form">
             <div class="space-y-5">
               <div>
-                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="login-email"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -283,7 +299,10 @@
               </div>
 
               <div>
-                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="login-password"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Password
                 </label>
                 <input
@@ -300,7 +319,10 @@
                 Login
               </button>
 
-              <div id="login-error" class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm">
+              <div
+                id="login-error"
+                class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm"
+              >
                 <!-- Error message will appear here -->
               </div>
             </div>
@@ -309,12 +331,17 @@
 
         <!-- Register Form -->
         <div id="register-tab" class="tab-content">
-          <h2 class="text-2xl font-bold mb-6" style="color: var(--dark)">Create Account</h2>
-          
+          <h2 class="text-2xl font-bold mb-6" style="color: var(--dark)">
+            Create Account
+          </h2>
+
           <form id="register-form">
             <div class="space-y-5">
               <div>
-                <label for="register-username" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="register-username"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Full Name
                 </label>
                 <input
@@ -327,7 +354,10 @@
               </div>
 
               <div>
-                <label for="register-email" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="register-email"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -340,7 +370,10 @@
               </div>
 
               <div>
-                <label for="register-password" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="register-password"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Password
                 </label>
                 <input
@@ -354,7 +387,10 @@
               </div>
 
               <div>
-                <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  for="register-confirm-password"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Confirm Password
                 </label>
                 <input
@@ -372,11 +408,17 @@
                 Create Account
               </button>
 
-              <div id="register-error" class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm">
+              <div
+                id="register-error"
+                class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm"
+              >
                 <!-- Error message will appear here -->
               </div>
 
-              <div id="register-success" class="hidden bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-xl text-center text-sm">
+              <div
+                id="register-success"
+                class="hidden bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-xl text-center text-sm"
+              >
                 <i class="fas fa-check-circle mr-2"></i>
                 Account created successfully! Redirecting to login...
               </div>
@@ -385,10 +427,17 @@
 
           <!-- OTP Verification Panel (hidden until step 1 completes) -->
           <div id="otp-panel" class="hidden mt-6">
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 text-center">
-              <i class="fas fa-envelope-open-text text-amber-500 text-2xl mb-2"></i>
+            <div
+              class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 text-center"
+            >
+              <i
+                class="fas fa-envelope-open-text text-amber-500 text-2xl mb-2"
+              ></i>
               <p class="font-semibold text-gray-800 mb-1">Check your email!</p>
-              <p class="text-sm text-gray-600">We've sent a 6-digit verification code to <strong id="otp-email-hint"></strong>. It expires in 5 minutes.</p>
+              <p class="text-sm text-gray-600">
+                We've sent a 6-digit verification code to
+                <strong id="otp-email-hint"></strong>. It expires in 5 minutes.
+              </p>
             </div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Verification Code
@@ -401,12 +450,22 @@
               maxlength="6"
               inputmode="numeric"
             />
-            <div id="otp-error" class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm mt-3"></div>
-            <button id="otp-verify-btn" onclick="verifyOTP()" class="btn-primary w-full mt-4">
+            <div
+              id="otp-error"
+              class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center text-sm mt-3"
+            ></div>
+            <button
+              id="otp-verify-btn"
+              onclick="verifyOTP()"
+              class="btn-primary w-full mt-4"
+            >
               <i class="fas fa-check-circle mr-2"></i>
               Verify &amp; Create Account
             </button>
-            <button onclick="resetRegister()" class="btn-secondary w-full mt-3 text-sm">
+            <button
+              onclick="resetRegister()"
+              class="btn-secondary w-full mt-3 text-sm"
+            >
               Use a different email
             </button>
           </div>
@@ -416,50 +475,54 @@
 
     <script>
       // Tab switching
-      const tabBtns = document.querySelectorAll('.tab-btn');
-      const tabContents = document.querySelectorAll('.tab-content');
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabContents = document.querySelectorAll(".tab-content");
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
           const targetTab = btn.dataset.tab;
 
           // Update active states
-          tabBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
 
-          tabContents.forEach(content => {
-            content.classList.remove('active');
+          tabContents.forEach((content) => {
+            content.classList.remove("active");
             if (content.id === `${targetTab}-tab`) {
-              content.classList.add('active');
+              content.classList.add("active");
             }
           });
 
           // Clear any error messages
-          document.querySelectorAll('[id$="-error"]').forEach(el => el.classList.add('hidden'));
-          document.querySelectorAll('[id$="-success"]').forEach(el => el.classList.add('hidden'));
+          document
+            .querySelectorAll('[id$="-error"]')
+            .forEach((el) => el.classList.add("hidden"));
+          document
+            .querySelectorAll('[id$="-success"]')
+            .forEach((el) => el.classList.add("hidden"));
         });
       });
 
       // Login form submission
-      const loginForm = document.getElementById('login-form');
-      loginForm.addEventListener('submit', async (e) => {
+      const loginForm = document.getElementById("login-form");
+      loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const loginError = document.getElementById('login-error');
-        loginError.classList.add('hidden');
+        const loginError = document.getElementById("login-error");
+        loginError.classList.add("hidden");
 
         const formData = {
-          email: document.getElementById('login-email').value,
-          password: document.getElementById('login-password').value
+          email: document.getElementById("login-email").value,
+          password: document.getElementById("login-password").value,
         };
 
         try {
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
           });
 
           const data = await response.json();
@@ -467,111 +530,129 @@
           if (response.ok) {
             // Store token and role info
             const tokenData = data.data;
-            localStorage.setItem('authToken', tokenData.token);
-            localStorage.setItem('userId', tokenData.userId);
-            localStorage.setItem('userRole', tokenData.role);
-            localStorage.setItem('isAdmin', tokenData.isadmin ? 'true' : 'false');
-            localStorage.setItem('username', tokenData.username || '');
-            localStorage.setItem('userEmail', tokenData.email || '');
+            localStorage.setItem("authToken", tokenData.token);
+            localStorage.setItem("userId", tokenData.userId);
+            localStorage.setItem("userRole", tokenData.role);
+            localStorage.setItem(
+              "isAdmin",
+              tokenData.isadmin ? "true" : "false",
+            );
+            localStorage.setItem("username", tokenData.username || "");
+            localStorage.setItem("userEmail", tokenData.email || "");
 
             // Redirect based on role
-            window.location.href = tokenData.isadmin ? 'admin.html' : 'dashboard.html';
+            window.location.href = tokenData.isadmin
+              ? "admin.html"
+              : "dashboard.html";
           } else {
-            loginError.textContent = data.error || 'Invalid credentials. Please try again.';
-            loginError.classList.remove('hidden');
+            loginError.textContent =
+              data.error || "Invalid credentials. Please try again.";
+            loginError.classList.remove("hidden");
           }
         } catch (error) {
-          console.error('Login error:', error);
-          loginError.textContent = 'Failed to login. Please try again later.';
-          loginError.classList.remove('hidden');
+          console.error("Login error:", error);
+          loginError.textContent = "Failed to login. Please try again later.";
+          loginError.classList.remove("hidden");
         }
       });
 
       // Register form submission
-      const registerForm = document.getElementById('register-form');
-      registerForm.addEventListener('submit', async (e) => {
+      const registerForm = document.getElementById("register-form");
+      registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const registerError = document.getElementById('register-error');
-        registerError.classList.add('hidden');
+        const registerError = document.getElementById("register-error");
+        registerError.classList.add("hidden");
 
         // Validate password match
-        const password = document.getElementById('register-password').value;
-        const confirmPassword = document.getElementById('register-confirm-password').value;
+        const password = document.getElementById("register-password").value;
+        const confirmPassword = document.getElementById(
+          "register-confirm-password",
+        ).value;
 
         if (password !== confirmPassword) {
-          registerError.textContent = 'Passwords do not match!';
-          registerError.classList.remove('hidden');
+          registerError.textContent = "Passwords do not match!";
+          registerError.classList.remove("hidden");
           return;
         }
 
         const submitBtn = registerForm.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending code…';
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin mr-2"></i>Sending code…';
 
-        const pendingEmail = document.getElementById('register-email').value.trim();
+        const pendingEmail = document
+          .getElementById("register-email")
+          .value.trim();
         const formData = {
-          username: document.getElementById('register-username').value.trim(),
+          username: document.getElementById("register-username").value.trim(),
           email: pendingEmail,
-          password: password
+          password: password,
         };
 
         try {
-          const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
           });
 
           const resData = await res.json();
 
           if (res.status === 202) {
             // Hide the form, show OTP panel — stay on register tab
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('otp-email-hint').textContent = pendingEmail;
-            document.getElementById('otp-panel').classList.remove('hidden');
-            document.getElementById('otp-input').focus();
+            document.getElementById("register-form").classList.add("hidden");
+            document.getElementById("otp-email-hint").textContent =
+              pendingEmail;
+            document.getElementById("otp-panel").classList.remove("hidden");
+            document.getElementById("otp-input").focus();
           } else {
-            registerError.textContent = resData.message || resData.error || 'Failed to send code. Please try again.';
-            registerError.classList.remove('hidden');
+            registerError.textContent =
+              resData.message ||
+              resData.error ||
+              "Failed to send code. Please try again.";
+            registerError.classList.remove("hidden");
           }
         } catch (error) {
-          console.error('Registration error:', error);
-          registerError.textContent = 'Failed to send verification code. Please try again later.';
-          registerError.classList.remove('hidden');
+          console.error("Registration error:", error);
+          registerError.textContent =
+            "Failed to send verification code. Please try again later.";
+          registerError.classList.remove("hidden");
         } finally {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
+          submitBtn.innerHTML =
+            '<i class="fas fa-user-plus mr-2"></i>Create Account';
         }
       });
 
       async function verifyOTP() {
-        const code = document.getElementById('otp-input').value.trim();
-        const otpError = document.getElementById('otp-error');
-        otpError.classList.add('hidden');
+        const code = document.getElementById("otp-input").value.trim();
+        const otpError = document.getElementById("otp-error");
+        otpError.classList.add("hidden");
 
         if (!/^\d{6}$/.test(code)) {
-          otpError.textContent = 'Please enter the 6-digit code from your email.';
-          otpError.classList.remove('hidden');
+          otpError.textContent =
+            "Please enter the 6-digit code from your email.";
+          otpError.classList.remove("hidden");
           return;
         }
 
-        const btn = document.getElementById('otp-verify-btn');
+        const btn = document.getElementById("otp-verify-btn");
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verifying…';
 
         try {
-          const email = document.getElementById('otp-email-hint').textContent;
-          const res = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code })
+          const email = document.getElementById("otp-email-hint").textContent;
+          const res = await fetch("/api/auth/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, code }),
           });
           const resData = await res.json();
 
           if (res.ok) {
-            document.getElementById('otp-panel').innerHTML = `
+            document.getElementById("otp-panel").innerHTML = `
               <div class="bg-green-50 border-2 border-green-200 text-green-800 px-4 py-5 rounded-xl text-center">
                 <i class="fas fa-check-circle text-3xl text-green-500 mb-3 block"></i>
                 <p class="font-semibold text-lg">Account Created!</p>
@@ -579,24 +660,28 @@
               </div>`;
             setTimeout(() => tabBtns[0].click(), 2000);
           } else {
-            otpError.textContent = resData.message || resData.error || 'Verification failed. Try again.';
-            otpError.classList.remove('hidden');
+            otpError.textContent =
+              resData.message ||
+              resData.error ||
+              "Verification failed. Try again.";
+            otpError.classList.remove("hidden");
           }
         } catch (err) {
-          otpError.textContent = 'Something went wrong. Please try again.';
-          otpError.classList.remove('hidden');
+          otpError.textContent = "Something went wrong. Please try again.";
+          otpError.classList.remove("hidden");
         } finally {
           btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verify &amp; Create Account';
+          btn.innerHTML =
+            '<i class="fas fa-check-circle mr-2"></i>Verify &amp; Create Account';
         }
       }
 
       function resetRegister() {
-        document.getElementById('otp-panel').classList.add('hidden');
-        document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('register-form').reset();
-        document.getElementById('otp-input').value = '';
-        document.getElementById('otp-error').classList.add('hidden');
+        document.getElementById("otp-panel").classList.add("hidden");
+        document.getElementById("register-form").classList.remove("hidden");
+        document.getElementById("register-form").reset();
+        document.getElementById("otp-input").value = "";
+        document.getElementById("otp-error").classList.add("hidden");
       }
     </script>
   </body>

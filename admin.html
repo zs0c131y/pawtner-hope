@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Admin Dashboard - Pawtner Hope Foundation" />
+    <meta
+      name="description"
+      content="Admin Dashboard - Pawtner Hope Foundation"
+    />
     <meta name="theme-color" content="#d4a574" />
     <title>Admin Dashboard - Pawtner Hope Foundation</title>
 
@@ -51,7 +54,12 @@
         background: var(--light);
       }
 
-      h1, h2, h3, h4, h5, h6 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         font-family: "Playfair Display", serif;
       }
 
@@ -61,7 +69,11 @@
         top: 0;
         bottom: 0;
         width: 260px;
-        background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+        background: linear-gradient(
+          180deg,
+          var(--primary),
+          var(--primary-dark)
+        );
         color: white;
         padding: 2rem 0;
         overflow-y: auto;
@@ -77,7 +89,11 @@
           transform: translateX(-100%);
           transition: transform 0.3s ease;
           z-index: 1000;
-          background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+          background: linear-gradient(
+            180deg,
+            var(--primary),
+            var(--primary-dark)
+          );
         }
 
         .sidebar.active {
@@ -224,7 +240,7 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 2000;
         align-items: center;
         justify-content: center;
@@ -240,7 +256,7 @@
         max-width: 540px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       }
       .form-group {
         margin-bottom: 1rem;
@@ -276,7 +292,9 @@
     <aside class="sidebar" id="sidebar">
       <div class="px-8 mb-8">
         <div class="flex items-center gap-3 mb-2">
-          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+          <div
+            class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center"
+          >
             <i class="fas fa-paw text-2xl"></i>
           </div>
           <span class="text-xl font-bold">Pawtner Hope</span>
@@ -312,7 +330,10 @@
       </nav>
 
       <div class="px-8 mt-auto absolute bottom-8">
-        <button onclick="logout()" class="btn btn-secondary w-full flex items-center justify-center gap-2">
+        <button
+          onclick="logout()"
+          class="btn btn-secondary w-full flex items-center justify-center gap-2"
+        >
           <i class="fas fa-sign-out-alt"></i>
           Logout
         </button>
@@ -330,14 +351,18 @@
       <section id="overview" class="section active">
         <div class="mb-8">
           <h1 class="text-3xl font-bold mb-2">Dashboard Overview</h1>
-          <p class="text-gray-600">Welcome back! Here's what's happening today.</p>
+          <p class="text-gray-600">
+            Welcome back! Here's what's happening today.
+          </p>
         </div>
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="stat-card">
             <div class="flex items-center justify-between mb-3">
-              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-paw"></i></div>
+              <div class="text-3xl" style="color: var(--primary)">
+                <i class="fas fa-paw"></i>
+              </div>
               <span class="text-2xl font-bold" id="stat-pets">0</span>
             </div>
             <p class="text-gray-600 text-sm">Total Pets</p>
@@ -345,7 +370,9 @@
 
           <div class="stat-card">
             <div class="flex items-center justify-between mb-3">
-              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-home"></i></div>
+              <div class="text-3xl" style="color: var(--primary)">
+                <i class="fas fa-home"></i>
+              </div>
               <span class="text-2xl font-bold" id="stat-adoptions">0</span>
             </div>
             <p class="text-gray-600 text-sm">Adoption Inquiries</p>
@@ -353,7 +380,9 @@
 
           <div class="stat-card">
             <div class="flex items-center justify-between mb-3">
-              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-calendar-check"></i></div>
+              <div class="text-3xl" style="color: var(--primary)">
+                <i class="fas fa-calendar-check"></i>
+              </div>
               <span class="text-2xl font-bold" id="stat-bookings">0</span>
             </div>
             <p class="text-gray-600 text-sm">Service Bookings</p>
@@ -361,7 +390,9 @@
 
           <div class="stat-card">
             <div class="flex items-center justify-between mb-3">
-              <div class="text-3xl" style="color: var(--primary)"><i class="fas fa-users"></i></div>
+              <div class="text-3xl" style="color: var(--primary)">
+                <i class="fas fa-users"></i>
+              </div>
               <span class="text-2xl font-bold" id="stat-users">0</span>
             </div>
             <p class="text-gray-600 text-sm">Total Users</p>
@@ -382,7 +413,10 @@
             <h1 class="text-3xl font-bold mb-2">Manage Pets</h1>
             <p class="text-gray-600">View and manage all pets in the system</p>
           </div>
-          <button onclick="openPetModal()" class="btn btn-primary flex items-center gap-2">
+          <button
+            onclick="openPetModal()"
+            class="btn btn-primary flex items-center gap-2"
+          >
             <i class="fas fa-plus"></i> Add Pet
           </button>
         </div>
@@ -437,7 +471,9 @@
 
         <div class="table-container">
           <div id="messages-table">
-            <p class="text-gray-500 text-center py-8">Contact messages will be displayed here</p>
+            <p class="text-gray-500 text-center py-8">
+              Contact messages will be displayed here
+            </p>
           </div>
         </div>
       </section>
@@ -448,14 +484,24 @@
       <div class="modal">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold" id="pet-modal-title">Add Pet</h2>
-          <button onclick="closePetModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+          <button
+            onclick="closePetModal()"
+            class="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            &times;
+          </button>
         </div>
         <form id="pet-form" onsubmit="savePet(event)">
-          <input type="hidden" id="pet-id">
+          <input type="hidden" id="pet-id" />
           <div class="grid grid-cols-2 gap-4">
             <div class="form-group">
               <label>Name *</label>
-              <input type="text" id="pet-name" required placeholder="e.g. Max">
+              <input
+                type="text"
+                id="pet-name"
+                required
+                placeholder="e.g. Max"
+              />
             </div>
             <div class="form-group">
               <label>Species *</label>
@@ -469,11 +515,23 @@
             </div>
             <div class="form-group">
               <label>Breed *</label>
-              <input type="text" id="pet-breed" required placeholder="e.g. Golden Retriever">
+              <input
+                type="text"
+                id="pet-breed"
+                required
+                placeholder="e.g. Golden Retriever"
+              />
             </div>
             <div class="form-group">
               <label>Age (years) *</label>
-              <input type="number" id="pet-age" required min="0" max="30" placeholder="e.g. 3">
+              <input
+                type="number"
+                id="pet-age"
+                required
+                min="0"
+                max="30"
+                placeholder="e.g. 3"
+              />
             </div>
             <div class="form-group">
               <label>Gender</label>
@@ -494,132 +552,159 @@
           </div>
           <div class="form-group">
             <label>Description</label>
-            <textarea id="pet-description" rows="3" placeholder="Brief description of the pet…"></textarea>
+            <textarea
+              id="pet-description"
+              rows="3"
+              placeholder="Brief description of the pet…"
+            ></textarea>
           </div>
           <div class="form-group flex items-center gap-3">
-            <input type="checkbox" id="pet-vaccinated" class="w-4 h-4" style="width:1rem;height:1rem;">
-            <label for="pet-vaccinated" style="margin:0;">Vaccinated</label>
+            <input
+              type="checkbox"
+              id="pet-vaccinated"
+              class="w-4 h-4"
+              style="width: 1rem; height: 1rem"
+            />
+            <label for="pet-vaccinated" style="margin: 0">Vaccinated</label>
           </div>
           <div class="flex gap-3 mt-6 justify-end">
-            <button type="button" onclick="closePetModal()" class="btn btn-secondary">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="pet-save-btn">Save Pet</button>
+            <button
+              type="button"
+              onclick="closePetModal()"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="pet-save-btn">
+              Save Pet
+            </button>
           </div>
         </form>
       </div>
     </div>
     <script>
       // ── Pet CRUD helpers ─────────────────────────────────────────────────────
-      let petModalMode = 'add'; // 'add' | 'edit'
+      let petModalMode = "add"; // 'add' | 'edit'
 
       function openPetModal(pet) {
-        petModalMode = pet ? 'edit' : 'add';
-        document.getElementById('pet-modal-title').textContent = pet ? 'Edit Pet' : 'Add Pet';
-        document.getElementById('pet-id').value          = pet ? pet.id : '';
-        document.getElementById('pet-name').value        = pet ? pet.name : '';
-        document.getElementById('pet-species').value     = pet ? pet.species : '';
-        document.getElementById('pet-breed').value       = pet ? pet.breed : '';
-        document.getElementById('pet-age').value         = pet ? pet.age : '';
-        document.getElementById('pet-gender').value      = pet ? pet.gender : '';
-        document.getElementById('pet-status').value      = pet ? pet.status : 'Available';
-        document.getElementById('pet-description').value = pet ? pet.description : '';
-        document.getElementById('pet-vaccinated').checked = pet ? pet.isVaccinated : false;
-        document.getElementById('pet-modal-overlay').classList.add('open');
+        petModalMode = pet ? "edit" : "add";
+        document.getElementById("pet-modal-title").textContent = pet
+          ? "Edit Pet"
+          : "Add Pet";
+        document.getElementById("pet-id").value = pet ? pet.id : "";
+        document.getElementById("pet-name").value = pet ? pet.name : "";
+        document.getElementById("pet-species").value = pet ? pet.species : "";
+        document.getElementById("pet-breed").value = pet ? pet.breed : "";
+        document.getElementById("pet-age").value = pet ? pet.age : "";
+        document.getElementById("pet-gender").value = pet ? pet.gender : "";
+        document.getElementById("pet-status").value = pet
+          ? pet.status
+          : "Available";
+        document.getElementById("pet-description").value = pet
+          ? pet.description
+          : "";
+        document.getElementById("pet-vaccinated").checked = pet
+          ? pet.isVaccinated
+          : false;
+        document.getElementById("pet-modal-overlay").classList.add("open");
       }
 
       function closePetModal() {
-        document.getElementById('pet-modal-overlay').classList.remove('open');
+        document.getElementById("pet-modal-overlay").classList.remove("open");
       }
 
       async function savePet(e) {
         e.preventDefault();
-        const id = document.getElementById('pet-id').value;
+        const id = document.getElementById("pet-id").value;
         const body = {
-          name:        document.getElementById('pet-name').value,
-          species:     document.getElementById('pet-species').value,
-          breed:       document.getElementById('pet-breed').value,
-          age:         parseInt(document.getElementById('pet-age').value, 10),
-          gender:      document.getElementById('pet-gender').value,
-          status:      document.getElementById('pet-status').value,
-          description: document.getElementById('pet-description').value,
-          isVaccinated: document.getElementById('pet-vaccinated').checked,
+          name: document.getElementById("pet-name").value,
+          species: document.getElementById("pet-species").value,
+          breed: document.getElementById("pet-breed").value,
+          age: parseInt(document.getElementById("pet-age").value, 10),
+          gender: document.getElementById("pet-gender").value,
+          status: document.getElementById("pet-status").value,
+          description: document.getElementById("pet-description").value,
+          isVaccinated: document.getElementById("pet-vaccinated").checked,
         };
 
-        const btn = document.getElementById('pet-save-btn');
+        const btn = document.getElementById("pet-save-btn");
         btn.disabled = true;
-        btn.textContent = 'Saving…';
+        btn.textContent = "Saving…";
 
         try {
-          const url    = id ? `/api/pets/${id}` : '/api/pets';
-          const method = id ? 'PUT' : 'POST';
+          const url = id ? `/api/pets/${id}` : "/api/pets";
+          const method = id ? "PUT" : "POST";
           const res = await fetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           });
           const data = await res.json();
-          if (!data.success) throw new Error(data.message || 'Failed');
+          if (!data.success) throw new Error(data.message || "Failed");
           closePetModal();
           loadPets();
         } catch (err) {
-          alert('Error: ' + err.message);
+          alert("Error: " + err.message);
         } finally {
           btn.disabled = false;
-          btn.textContent = 'Save Pet';
+          btn.textContent = "Save Pet";
         }
       }
 
       async function deletePet(id, name) {
         if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
         try {
-          const res = await fetch(`/api/pets/${id}`, { method: 'DELETE' });
+          const res = await fetch(`/api/pets/${id}`, { method: "DELETE" });
           const data = await res.json();
-          if (!data.success) throw new Error(data.message || 'Failed');
+          if (!data.success) throw new Error(data.message || "Failed");
           loadPets();
         } catch (err) {
-          alert('Error deleting pet: ' + err.message);
+          alert("Error deleting pet: " + err.message);
         }
       }
 
       // Close modal when clicking outside
-      document.getElementById('pet-modal-overlay').addEventListener('click', function(e) {
-        if (e.target === this) closePetModal();
-      });
+      document
+        .getElementById("pet-modal-overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closePetModal();
+        });
 
       // Check authentication and admin role
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem("authToken");
       if (!authToken) {
-        window.location.href = 'auth.html';
-      } else if (localStorage.getItem('isAdmin') !== 'true') {
-        window.location.href = 'dashboard.html';
+        window.location.href = "auth.html";
+      } else if (localStorage.getItem("isAdmin") !== "true") {
+        window.location.href = "dashboard.html";
       }
 
       // Mobile menu toggle
-      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-      const sidebar = document.getElementById('sidebar');
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const sidebar = document.getElementById("sidebar");
 
       if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', () => {
-          sidebar.classList.toggle('active');
+        mobileMenuBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
         });
       }
 
       // Navigation
-      const navItems = document.querySelectorAll('.nav-item');
-      const sections = document.querySelectorAll('.section');
+      const navItems = document.querySelectorAll(".nav-item");
+      const sections = document.querySelectorAll(".section");
 
-      navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+      navItems.forEach((item) => {
+        item.addEventListener("click", (e) => {
           e.preventDefault();
           const targetSection = item.dataset.section;
 
           // Update active states
-          navItems.forEach(nav => nav.classList.remove('active'));
-          item.classList.add('active');
+          navItems.forEach((nav) => nav.classList.remove("active"));
+          item.classList.add("active");
 
-          sections.forEach(section => {
-            section.classList.remove('active');
+          sections.forEach((section) => {
+            section.classList.remove("active");
             if (section.id === targetSection) {
-              section.classList.add('active');
+              section.classList.add("active");
             }
           });
 
@@ -628,55 +713,59 @@
 
           // Close mobile menu
           if (window.innerWidth < 768) {
-            sidebar.classList.remove('active');
+            sidebar.classList.remove("active");
           }
         });
       });
 
       // Logout function
       function logout() {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userEmail');
-        window.location.href = 'auth.html';
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("isAdmin");
+        localStorage.removeItem("username");
+        localStorage.removeItem("userEmail");
+        window.location.href = "auth.html";
       }
 
       // Load statistics
       async function loadStatistics() {
         try {
-          const response = await fetch('/api/statistics');
+          const response = await fetch("/api/statistics");
           const res = await response.json();
           const stats = res.data || {};
 
-          document.getElementById('stat-pets').textContent = stats.totalPets || 0;
-          document.getElementById('stat-adoptions').textContent = stats.totalInquiries || 0;
-          document.getElementById('stat-bookings').textContent = stats.totalBookings || 0;
-          document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+          document.getElementById("stat-pets").textContent =
+            stats.totalPets || 0;
+          document.getElementById("stat-adoptions").textContent =
+            stats.totalInquiries || 0;
+          document.getElementById("stat-bookings").textContent =
+            stats.totalBookings || 0;
+          document.getElementById("stat-users").textContent =
+            stats.totalUsers || 0;
         } catch (error) {
-          console.error('Error loading statistics:', error);
+          console.error("Error loading statistics:", error);
         }
       }
 
       // Load section data
       async function loadSectionData(section) {
-        switch(section) {
-          case 'overview':
+        switch (section) {
+          case "overview":
             loadStatistics();
             loadRecentAdoptions();
             break;
-          case 'pets':
+          case "pets":
             loadPets();
             break;
-          case 'adoptions':
+          case "adoptions":
             loadAdoptions();
             break;
-          case 'bookings':
+          case "bookings":
             loadBookings();
             break;
-          case 'donations':
+          case "donations":
             loadDonations();
             break;
         }
@@ -685,17 +774,18 @@
       // Load recent adoptions
       async function loadRecentAdoptions() {
         try {
-          const response = await fetch('/api/adoptions');
+          const response = await fetch("/api/adoptions");
           const res = await response.json();
           const adoptions = res.data || [];
-          
+
           if (!adoptions || adoptions.length === 0) {
-            document.getElementById('recent-adoptions').innerHTML = '<p class="text-gray-500 text-center py-4">No adoption inquiries yet</p>';
+            document.getElementById("recent-adoptions").innerHTML =
+              '<p class="text-gray-500 text-center py-4">No adoption inquiries yet</p>';
             return;
           }
 
           const recentAdoptions = adoptions.slice(0, 5);
-          document.getElementById('recent-adoptions').innerHTML = `
+          document.getElementById("recent-adoptions").innerHTML = `
             <table>
               <thead>
                 <tr>
@@ -708,22 +798,27 @@
                 </tr>
               </thead>
               <tbody>
-                ${recentAdoptions.map(adoption => `
+                ${recentAdoptions
+                  .map(
+                    (adoption) => `
                   <tr>
                     <td>${adoption.petId}</td>
                     <td>${adoption.adopterName}</td>
                     <td>${adoption.email}</td>
                     <td>${adoption.phone}</td>
-                    <td><span class="badge badge-${adoption.status === 'Pending' ? 'warning' : adoption.status === 'Approved' ? 'success' : 'info'}">${adoption.status}</span></td>
+                    <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
                     <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           `;
         } catch (error) {
-          console.error('Error loading adoptions:', error);
-          document.getElementById('recent-adoptions').innerHTML = '<p class="text-red-500 text-center py-4">Failed to load adoption inquiries</p>';
+          console.error("Error loading adoptions:", error);
+          document.getElementById("recent-adoptions").innerHTML =
+            '<p class="text-red-500 text-center py-4">Failed to load adoption inquiries</p>';
         }
       }
 
@@ -733,17 +828,18 @@
       // Load pets
       async function loadPets() {
         try {
-          const response = await fetch('/api/pets');
+          const response = await fetch("/api/pets");
           const res = await response.json();
           const pets = res.data || [];
           _petsCache = pets;
 
           if (pets.length === 0) {
-            document.getElementById('pets-table').innerHTML = '<p class="text-gray-500 text-center py-8">No pets found. Click "Add Pet" to add one.</p>';
+            document.getElementById("pets-table").innerHTML =
+              '<p class="text-gray-500 text-center py-8">No pets found. Click "Add Pet" to add one.</p>';
             return;
           }
 
-          document.getElementById('pets-table').innerHTML = `
+          document.getElementById("pets-table").innerHTML = `
             <table>
               <thead>
                 <tr>
@@ -758,52 +854,58 @@
                 </tr>
               </thead>
               <tbody>
-                ${pets.map(pet => `
+                ${pets
+                  .map(
+                    (pet) => `
                   <tr>
                     <td style="font-family:monospace;font-size:0.8rem;">${pet.id}</td>
                     <td><strong>${pet.name}</strong></td>
                     <td>${pet.species}</td>
                     <td>${pet.breed}</td>
-                    <td>${pet.age} yr${pet.age !== 1 ? 's' : ''}</td>
-                    <td><span class="badge badge-${pet.status === 'Available' ? 'success' : pet.status === 'Adopted' ? 'info' : 'warning'}">${pet.status}</span></td>
+                    <td>${pet.age} yr${pet.age !== 1 ? "s" : ""}</td>
+                    <td><span class="badge badge-${pet.status === "Available" ? "success" : pet.status === "Adopted" ? "info" : "warning"}">${pet.status}</span></td>
                     <td>${pet.isVaccinated ? '<span style="color:#166534;">✓ Yes</span>' : '<span style="color:#92400e;">✗ No</span>'}</td>
                     <td>
                       <button onclick="editPetById('${pet.id}')" class="btn btn-primary" style="padding:0.3rem 0.7rem;font-size:0.8rem;margin-right:0.4rem;">
                         <i class="fas fa-edit"></i> Edit
                       </button>
-                      <button onclick="deletePet('${pet.id}','${pet.name.replace(/'/g,"\\\'")}')" class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.8rem;">
+                      <button onclick="deletePet('${pet.id}','${pet.name.replace(/'/g, "\\\'")}')" class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.8rem;">
                         <i class="fas fa-trash"></i>
                       </button>
                     </td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           `;
         } catch (error) {
-          console.error('Error loading pets:', error);
-          document.getElementById('pets-table').innerHTML = '<p class="text-red-500 text-center py-8">Failed to load pets</p>';
+          console.error("Error loading pets:", error);
+          document.getElementById("pets-table").innerHTML =
+            '<p class="text-red-500 text-center py-8">Failed to load pets</p>';
         }
       }
 
       function editPetById(id) {
-        const pet = _petsCache.find(p => p.id === id);
+        const pet = _petsCache.find((p) => p.id === id);
         if (pet) openPetModal(pet);
       }
 
       // Load adoptions
       async function loadAdoptions() {
         try {
-          const response = await fetch('/api/adoptions');
+          const response = await fetch("/api/adoptions");
           const res = await response.json();
           const adoptions = res.data || [];
 
           if (!adoptions || adoptions.length === 0) {
-            document.getElementById('adoptions-table').innerHTML = '<p class="text-gray-500 text-center py-8">No adoption inquiries yet</p>';
+            document.getElementById("adoptions-table").innerHTML =
+              '<p class="text-gray-500 text-center py-8">No adoption inquiries yet</p>';
             return;
           }
 
-          document.getElementById('adoptions-table').innerHTML = `
+          document.getElementById("adoptions-table").innerHTML = `
             <table>
               <thead>
                 <tr>
@@ -818,39 +920,44 @@
                 </tr>
               </thead>
               <tbody>
-                ${adoptions.map(adoption => `
+                ${adoptions
+                  .map(
+                    (adoption) => `
                   <tr>
                     <td>${adoption.id}</td>
                     <td>${adoption.petId}</td>
                     <td>${adoption.adopterName}</td>
                     <td>${adoption.email}</td>
                     <td>${adoption.phone}</td>
-                    <td><span class="badge badge-${adoption.status === 'Pending' ? 'warning' : adoption.status === 'Approved' ? 'success' : 'info'}">${adoption.status}</span></td>
-                    <td>${(adoption.message || '').substring(0, 50)}${adoption.message && adoption.message.length > 50 ? '...' : ''}</td>
+                    <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
+                    <td>${(adoption.message || "").substring(0, 50)}${adoption.message && adoption.message.length > 50 ? "..." : ""}</td>
                     <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           `;
         } catch (error) {
-          console.error('Error loading adoptions:', error);
+          console.error("Error loading adoptions:", error);
         }
       }
 
       // Load bookings
       async function loadBookings() {
         try {
-          const response = await fetch('/api/bookings');
+          const response = await fetch("/api/bookings");
           const res = await response.json();
           const bookings = res.data || [];
 
           if (!bookings || bookings.length === 0) {
-            document.getElementById('bookings-table').innerHTML = '<p class="text-gray-500 text-center py-8">No bookings yet</p>';
+            document.getElementById("bookings-table").innerHTML =
+              '<p class="text-gray-500 text-center py-8">No bookings yet</p>';
             return;
           }
 
-          document.getElementById('bookings-table').innerHTML = `
+          document.getElementById("bookings-table").innerHTML = `
             <table>
               <thead>
                 <tr>
@@ -864,39 +971,45 @@
                 </tr>
               </thead>
               <tbody>
-                ${bookings.map(b => `
+                ${bookings
+                  .map(
+                    (b) => `
                   <tr>
                     <td>${b.id}</td>
                     <td>${b.serviceId}</td>
-                    <td>${b.petName || '-'}</td>
+                    <td>${b.petName || "-"}</td>
                     <td>${b.ownerName}</td>
                     <td>${b.email}</td>
                     <td>${b.date || new Date(b.bookedAt).toLocaleDateString()}</td>
-                    <td><span class="badge badge-${b.status === 'Pending' ? 'warning' : 'success'}">${b.status}</span></td>
+                    <td><span class="badge badge-${b.status === "Pending" ? "warning" : "success"}">${b.status}</span></td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           `;
         } catch (error) {
-          console.error('Error loading bookings:', error);
-          document.getElementById('bookings-table').innerHTML = '<p class="text-red-500 text-center py-8">Failed to load bookings</p>';
+          console.error("Error loading bookings:", error);
+          document.getElementById("bookings-table").innerHTML =
+            '<p class="text-red-500 text-center py-8">Failed to load bookings</p>';
         }
       }
 
       // Load donations
       async function loadDonations() {
         try {
-          const response = await fetch('/api/donations');
+          const response = await fetch("/api/donations");
           const res = await response.json();
           const donations = res.data || [];
 
           if (!donations || donations.length === 0) {
-            document.getElementById('donations-table').innerHTML = '<p class="text-gray-500 text-center py-8">No donations yet</p>';
+            document.getElementById("donations-table").innerHTML =
+              '<p class="text-gray-500 text-center py-8">No donations yet</p>';
             return;
           }
 
-          document.getElementById('donations-table').innerHTML = `
+          document.getElementById("donations-table").innerHTML = `
             <table>
               <thead>
                 <tr>
@@ -911,7 +1024,9 @@
                 </tr>
               </thead>
               <tbody>
-                ${donations.map(donation => `
+                ${donations
+                  .map(
+                    (donation) => `
                   <tr>
                     <td>${donation.id}</td>
                     <td>${donation.donorName}</td>
@@ -919,15 +1034,17 @@
                     <td>₹${donation.amount.toLocaleString()}</td>
                     <td>${donation.paymentMethod}</td>
                     <td>${donation.transactionId}</td>
-                    <td><span class="badge badge-${donation.status === 'Completed' ? 'success' : donation.status === 'Pending' ? 'warning' : 'info'}">${donation.status}</span></td>
+                    <td><span class="badge badge-${donation.status === "Completed" ? "success" : donation.status === "Pending" ? "warning" : "info"}">${donation.status}</span></td>
                     <td>${new Date(donation.createdAt).toLocaleDateString()}</td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           `;
         } catch (error) {
-          console.error('Error loading donations:', error);
+          console.error("Error loading donations:", error);
         }
       }
 

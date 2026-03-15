@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
@@ -216,13 +216,22 @@
           <div class="flex items-center space-x-3">
             <div
               class="w-10 h-10 rounded-full flex items-center justify-center"
-              style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  var(--primary),
+                  var(--primary-dark)
+                );
+              "
             >
               <i class="fas fa-paw text-white text-xl"></i>
             </div>
             <span
               class="text-xl font-semibold"
-              style="font-family: 'Playfair Display', serif; color: var(--dark)"
+              style="
+                font-family: &quot;Playfair Display&quot;, serif;
+                color: var(--dark);
+              "
               >Pawtner Hope</span
             >
           </div>
@@ -395,10 +404,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Pet Adoption
                     </h3>
-                    <p class="text-gray-600 text-sm">Find your perfect companion</p>
+                    <p class="text-gray-600 text-sm">
+                      Find your perfect companion
+                    </p>
                   </div>
 
                   <!-- Veterinary Care -->
@@ -418,10 +432,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Veterinary Care
                     </h3>
-                    <p class="text-gray-600 text-sm">Medical care and vaccination</p>
+                    <p class="text-gray-600 text-sm">
+                      Medical care and vaccination
+                    </p>
                   </div>
 
                   <!-- Spay & Neuter -->
@@ -441,10 +460,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Spay & Neuter
                     </h3>
-                    <p class="text-gray-600 text-sm">Free sterilization programs</p>
+                    <p class="text-gray-600 text-sm">
+                      Free sterilization programs
+                    </p>
                   </div>
                 </div>
 
@@ -467,10 +491,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Pet Training
                     </h3>
-                    <p class="text-gray-600 text-sm">Professional training programs</p>
+                    <p class="text-gray-600 text-sm">
+                      Professional training programs
+                    </p>
                   </div>
 
                   <!-- Emergency Rescue -->
@@ -490,10 +519,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Emergency Rescue
                     </h3>
-                    <p class="text-gray-600 text-sm">24/7 animal emergency response</p>
+                    <p class="text-gray-600 text-sm">
+                      24/7 animal emergency response
+                    </p>
                   </div>
 
                   <!-- Fostering Program -->
@@ -513,10 +547,15 @@
                         ></path>
                       </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2" style="color: var(--dark)">
+                    <h3
+                      class="text-xl font-semibold mb-2"
+                      style="color: var(--dark)"
+                    >
                       Fostering
                     </h3>
-                    <p class="text-gray-600 text-sm">Temporary homes for pets</p>
+                    <p class="text-gray-600 text-sm">
+                      Temporary homes for pets
+                    </p>
                   </div>
                 </div>
               </div>
@@ -601,7 +640,12 @@
                   >
                     Service Required *
                   </label>
-                  <select id="service" name="service" required class="form-select">
+                  <select
+                    id="service"
+                    name="service"
+                    required
+                    class="form-select"
+                  >
                     <option value="">Select a service</option>
                     <option value="emergency">Emergency Rescue</option>
                     <option value="veterinary">Veterinary Care</option>
@@ -621,7 +665,12 @@
                     >
                       Preferred Date
                     </label>
-                    <input type="date" id="date" name="date" class="form-input" />
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      class="form-input"
+                    />
                   </div>
 
                   <div>
@@ -631,7 +680,14 @@
                     >
                       Preferred Time
                     </label>
-                    <input type="time" id="time" name="time" min="08:00" max="22:00" class="form-input" />
+                    <input
+                      type="time"
+                      id="time"
+                      name="time"
+                      min="08:00"
+                      max="22:00"
+                      class="form-input"
+                    />
                   </div>
                 </div>
 
@@ -698,7 +754,8 @@
                   id="form-success"
                   class="hidden bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-xl text-center"
                 >
-                  Thank you! Your request has been received. We'll contact you soon.
+                  Thank you! Your request has been received. We'll contact you
+                  soon.
                 </div>
               </form>
             </div>
@@ -714,13 +771,19 @@
           <div class="flex items-center justify-center space-x-3 mb-4">
             <div
               class="w-10 h-10 rounded-full flex items-center justify-center"
-              style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  var(--primary),
+                  var(--primary-dark)
+                );
+              "
             >
               <i class="fas fa-paw text-white text-xl"></i>
             </div>
             <span
               class="text-xl font-semibold"
-              style="font-family: 'Playfair Display', serif"
+              style="font-family: &quot;Playfair Display&quot;, serif"
               >Pawtner Hope Foundation</span
             >
           </div>
@@ -789,7 +852,7 @@
       timeInput.addEventListener("change", (e) => {
         const selectedTime = e.target.value;
         if (selectedTime) {
-          const [hours, minutes] = selectedTime.split(':').map(Number);
+          const [hours, minutes] = selectedTime.split(":").map(Number);
           const timeInMinutes = hours * 60 + minutes;
           const minTime = 8 * 60; // 08:00
           const maxTime = 22 * 60; // 22:00
@@ -815,15 +878,15 @@
             phone: document.getElementById("phone").value,
             date: document.getElementById("date").value,
             time: document.getElementById("time").value,
-            notes: document.getElementById("message").value
+            notes: document.getElementById("message").value,
           };
 
-          const response = await fetch('/api/bookings', {
-            method: 'POST',
+          const response = await fetch("/api/bookings", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
           });
 
           if (response.ok) {
@@ -838,79 +901,95 @@
               document.getElementById("form-success").classList.add("hidden");
             }, 5000);
           } else {
-            alert('Failed to submit booking. Please try again.');
+            alert("Failed to submit booking. Please try again.");
           }
         } catch (error) {
-          console.error('Error submitting booking:', error);
-          alert('Failed to submit booking. Please try again later.');
+          console.error("Error submitting booking:", error);
+          alert("Failed to submit booking. Please try again later.");
         }
       });
     </script>
-  <script>
-    (function() {
-      var token = localStorage.getItem('authToken');
-      if (!token) return;
+    <script>
+      (function () {
+        var token = localStorage.getItem("authToken");
+        if (!token) return;
 
-      var isAdmin = localStorage.getItem('isAdmin') === 'true';
-      var dest = isAdmin ? 'admin.html' : 'dashboard.html';
+        var isAdmin = localStorage.getItem("isAdmin") === "true";
+        var dest = isAdmin ? "admin.html" : "dashboard.html";
 
-      function renderPill(username) {
-        var initial = (username || '?').charAt(0).toUpperCase();
-        ['nav-auth-btn', 'mobile-auth-btn'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (!el) return;
-          el.href = dest;
-          el.className = '';
-          el.style.cssText = 'display:inline-flex;align-items:center;gap:0.45rem;background:#2c2416;color:white;padding:0.28rem 0.75rem 0.28rem 0.28rem;border-radius:9999px;text-decoration:none;font-size:0.83rem;font-weight:500;line-height:1;font-family:"Work Sans",sans-serif;';
-          el.innerHTML = '<span style="width:27px;height:27px;min-width:27px;background:#d4a574;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.72rem;color:white;">' + initial + '</span><span>' + username + '</span>';
-        });
-      }
-
-      function lockField(id, value) {
-        var el = document.getElementById(id);
-        if (!el || !value) return;
-        el.value = value;
-        el.readOnly = true;
-        el.style.background = '#f5f0ea';
-        el.style.cursor = 'not-allowed';
-        el.style.borderColor = '#d4a574';
-        el.title = 'Pre-filled from your account';
-        var label = document.querySelector('label[for="' + id + '"]');
-        if (label && !label.querySelector('.lock-icon')) {
-          var lock = document.createElement('span');
-          lock.className = 'lock-icon';
-          lock.innerHTML = ' <i class="fas fa-lock" style="font-size:0.65rem;color:#d4a574;margin-left:0.25rem;"></i>';
-          label.appendChild(lock);
+        function renderPill(username) {
+          var initial = (username || "?").charAt(0).toUpperCase();
+          ["nav-auth-btn", "mobile-auth-btn"].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.href = dest;
+            el.className = "";
+            el.style.cssText =
+              'display:inline-flex;align-items:center;gap:0.45rem;background:#2c2416;color:white;padding:0.28rem 0.75rem 0.28rem 0.28rem;border-radius:9999px;text-decoration:none;font-size:0.83rem;font-weight:500;line-height:1;font-family:"Work Sans",sans-serif;';
+            el.innerHTML =
+              '<span style="width:27px;height:27px;min-width:27px;background:#d4a574;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.72rem;color:white;">' +
+              initial +
+              "</span><span>" +
+              username +
+              "</span>";
+          });
         }
-      }
 
-      function applyAll(username, email) {
-        renderPill(username);
-        lockField('fullName', username);
-        lockField('email', email);
-      }
+        function lockField(id, value) {
+          var el = document.getElementById(id);
+          if (!el || !value) return;
+          el.value = value;
+          el.readOnly = true;
+          el.style.background = "#f5f0ea";
+          el.style.cursor = "not-allowed";
+          el.style.borderColor = "#d4a574";
+          el.title = "Pre-filled from your account";
+          var label = document.querySelector('label[for="' + id + '"]');
+          if (label && !label.querySelector(".lock-icon")) {
+            var lock = document.createElement("span");
+            lock.className = "lock-icon";
+            lock.innerHTML =
+              ' <i class="fas fa-lock" style="font-size:0.65rem;color:#d4a574;margin-left:0.25rem;"></i>';
+            label.appendChild(lock);
+          }
+        }
 
-      var cachedName = localStorage.getItem('username');
-      var cachedEmail = localStorage.getItem('userEmail');
-      if (cachedName && cachedEmail) {
-        applyAll(cachedName, cachedEmail);
-      } else {
-        fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
-          .then(function(r) { return r.json(); })
-          .then(function(body) {
-            if (body.success && body.data) {
-              var u = body.data.username || '';
-              var e = body.data.email || '';
-              localStorage.setItem('username', u);
-              localStorage.setItem('userEmail', e);
-              localStorage.setItem('isAdmin', body.data.isAdmin ? 'true' : 'false');
-              dest = body.data.isAdmin ? 'admin.html' : 'dashboard.html';
-              applyAll(u, e);
-            }
+        function applyAll(username, email) {
+          renderPill(username);
+          lockField("fullName", username);
+          lockField("email", email);
+        }
+
+        var cachedName = localStorage.getItem("username");
+        var cachedEmail = localStorage.getItem("userEmail");
+        if (cachedName && cachedEmail) {
+          applyAll(cachedName, cachedEmail);
+        } else {
+          fetch("/api/auth/me", {
+            headers: { Authorization: "Bearer " + token },
           })
-          .catch(function() { renderPill(cachedName || ''); });
-      }
-    })();
-  </script>
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (body) {
+              if (body.success && body.data) {
+                var u = body.data.username || "";
+                var e = body.data.email || "";
+                localStorage.setItem("username", u);
+                localStorage.setItem("userEmail", e);
+                localStorage.setItem(
+                  "isAdmin",
+                  body.data.isAdmin ? "true" : "false",
+                );
+                dest = body.data.isAdmin ? "admin.html" : "dashboard.html";
+                applyAll(u, e);
+              }
+            })
+            .catch(function () {
+              renderPill(cachedName || "");
+            });
+        }
+      })();
+    </script>
   </body>
 </html>
