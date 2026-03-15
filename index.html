@@ -41,6 +41,10 @@
     />
 
     <style>
+      @view-transition {
+        navigation: auto;
+      }
+
       :root {
         --primary: #d4a574;
         --primary-dark: #b8844f;
@@ -804,7 +808,7 @@
   <body>
     <!-- Navigation -->
     <nav
-      class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md z-50 shadow-sm"
+      class="fixed top-0 left-0 right-0 bg-white md:bg-white/95 md:backdrop-blur-md z-50 shadow-sm"
     >
       <div class="max-w-7xl mx-auto px-6 py-4">
         <div class="flex items-center justify-between">

@@ -645,7 +645,7 @@ func DeletePet(id string) error {
 }
 
 func ProcessDonation(donation *Donation) (*Receipt, error) {
-	if donation.Amount <= 0 {
+	if donation.Amount < 1 {
 		return nil, ErrInvalidPayment
 	}
 	if donation.DonorName == "" || donation.DonorEmail == "" {
