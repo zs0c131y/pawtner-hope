@@ -20,6 +20,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // 5. FUNCTIONS AND ERROR HANDLING
@@ -505,7 +506,16 @@ func ApplyFilters(petList []Pet, filters []Filterable) []Pet {
 
 // 5. FUNCTIONS AND ERROR HANDLING
 func hashPassword(password string) string {
-	return fmt.Sprintf("hashed_%s_pawtnersalt", password)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("bcrypt error: %v", err)
+		return ""
+	}
+	return string(hash)
+}
+
+func checkPassword(hashed, plain string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(plain)) == nil
 }
 
 func generateToken(userID string) string {
@@ -547,7 +557,7 @@ func Login(email, password string) (*AuthToken, error) {
 	defer mu.Unlock()
 
 	user, exists := usersByEmail[email]
-	if !exists || user.Password != hashPassword(password) {
+	if !exists || !checkPassword(user.Password, password) {
 		return nil, ErrInvalidCredentials
 	}
 
