@@ -730,7 +730,7 @@ const welcomeEmailTpl = `<!DOCTYPE html>
         </td></tr>
         <!-- CTA -->
         <tr><td style="padding:0 48px 40px;text-align:center;">
-          <a href="http://localhost:8080/adoption.html" style="display:inline-block;background:#d4a574;color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-size:15px;font-weight:600;">Browse Pets for Adoption →</a>
+          <a href="https://pawtner-hope.fly.dev/adoption.html" style="display:inline-block;background:#d4a574;color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-size:15px;font-weight:600;">Browse Pets for Adoption →</a>
         </td></tr>
         <!-- Footer -->
         <tr><td style="background:#f5f0eb;padding:24px 48px;text-align:center;">
@@ -776,7 +776,7 @@ const receiptEmailTpl = `<!DOCTYPE html>
         </td></tr>
         <!-- CTA -->
         <tr><td style="padding:0 48px 40px;text-align:center;">
-          <a href="http://localhost:8080/donate.html" style="display:inline-block;background:#d4a574;color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-size:15px;font-weight:600;">Donate Again →</a>
+          <a href="https://pawtner-hope.fly.dev/donate.html" style="display:inline-block;background:#d4a574;color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-size:15px;font-weight:600;">Donate Again →</a>
         </td></tr>
         <!-- Footer -->
         <tr><td style="background:#f5f0eb;padding:24px 48px;text-align:center;">
@@ -2000,9 +2000,13 @@ func main() {
 	log.Println("  GET    /api/donations         - Get donations")
 	log.Println("  POST   /api/donations         - Process donation")
 	log.Println("==============================================")
-	log.Println("Server starting on http://localhost:8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("Server starting on :%s", port)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
 }

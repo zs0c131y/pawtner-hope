@@ -1,5 +1,5 @@
 # ---------- Builder Stage ----------
-ARG GO_VERSION=1.22
+ARG GO_VERSION=1.21
 FROM golang:${GO_VERSION}-bookworm AS builder
 
 WORKDIR /app

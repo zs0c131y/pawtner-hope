@@ -1212,7 +1212,7 @@
                   </div>
                   <div>
                     <p class="font-semibold text-sm">Phone</p>
-                    <p class="text-gray-600 text-sm">+91 98765 43210</p>
+                    <p class="text-gray-600 text-sm">9341376855</p>
                   </div>
                 </div>
 
@@ -1472,7 +1472,7 @@
         const petsContainer = document.getElementById("pets-container");
 
         try {
-          const response = await fetch("http://localhost:8080/api/pets");
+          const response = await fetch("/api/pets");
           const result = await response.json();
           const pets = result.data || [];
 
@@ -1558,7 +1558,7 @@
 
         if (isValid) {
           // Submit to backend
-          fetch("http://localhost:8080/api/contact", {
+          fetch("/api/contact", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
