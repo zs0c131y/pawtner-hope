@@ -1523,6 +1523,7 @@
 
           closeInquiryModal();
           await loadRecentAdoptions();
+          await loadPets();
           await loadStatistics();
           showToast(`Inquiry marked as ${status}`);
         } catch (error) {

@@ -2103,7 +2103,9 @@ func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var oldStatus string
+	var oldPetStatus string
 	var updated AdoptionInquiry
+	var petID string
 	found := false
 
 	mu.Lock()
@@ -2112,6 +2114,7 @@ func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) 
 			oldStatus = inquiries[i].Status
 			inquiries[i].Status = req.Status
 			updated = inquiries[i]
+			petID = inquiries[i].PetID
 			found = true
 			break
 		}
@@ -2135,6 +2138,22 @@ func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) 
 		respondError(w, http.StatusInternalServerError, "Failed to persist inquiry status")
 		return
 	}
+
+	mu.Lock()
+	if pet, exists := petsByID[petID]; exists {
+		oldPetStatus = pet.Status
+		if req.Status == "Approved" {
+			pet.Status = "Adopted"
+			statusCounts[oldPetStatus]--
+			statusCounts["Adopted"]++
+		} else if req.Status == "Pending" || req.Status == "Rejected" {
+			pet.Status = "Available"
+			statusCounts[oldPetStatus]--
+			statusCounts["Available"]++
+		}
+		syncPetToDB(*pet)
+	}
+	mu.Unlock()
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,

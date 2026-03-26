@@ -274,7 +274,7 @@
               >Donate</a
             >
             <a
-              href="#contact"
+              href="index.html#contact"
               class="nav-link text-gray-700 hover:text-amber-600"
               >Contact</a
             >
@@ -349,7 +349,7 @@
               >Donate</a
             >
             <a
-              href="#contact"
+              href="index.html#contact"
               class="block py-2 text-gray-700 hover:text-amber-600"
               >Contact</a
             >
@@ -611,6 +611,24 @@
                     required
                     class="form-input"
                     placeholder="Enter your full name"
+                  />
+                </div>
+
+                <!-- Pet Name -->
+                <div>
+                  <label
+                    for="petName"
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Pet Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="petName"
+                    name="petName"
+                    required
+                    class="form-input"
+                    placeholder="Enter your pet's name"
                   />
                 </div>
 
@@ -973,6 +991,7 @@
           const formData = {
             serviceId: document.getElementById("service").value,
             ownerName: document.getElementById("fullName").value,
+            petName: document.getElementById("petName").value,
             email: document.getElementById("email").value,
             phone: document.getElementById("phone").value,
             date: document.getElementById("date").value,
