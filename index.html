@@ -1506,7 +1506,9 @@
             .then(async (response) => {
               const data = await response.json().catch(() => ({}));
               if (!response.ok || data.success === false) {
-                throw new Error(data.message || "Failed to submit contact form");
+                throw new Error(
+                  data.message || "Failed to submit contact form",
+                );
               }
               return data;
             })
@@ -1526,7 +1528,10 @@
             })
             .catch((error) => {
               console.error("Error submitting contact form:", error);
-              alert(error.message || "Failed to submit the form. Please try again later.");
+              alert(
+                error.message ||
+                  "Failed to submit the form. Please try again later.",
+              );
             });
         }
       });

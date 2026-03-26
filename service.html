@@ -1003,7 +1003,9 @@
               document.getElementById("form-success").classList.add("hidden");
             }, 5000);
           } else {
-            showFormError(data.message || "Failed to submit booking. Please try again.");
+            showFormError(
+              data.message || "Failed to submit booking. Please try again.",
+            );
           }
         } catch (error) {
           console.error("Error submitting booking:", error);
