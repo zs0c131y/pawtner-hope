@@ -957,6 +957,9 @@
           case "donations":
             loadDonations();
             break;
+          case "messages":
+            loadMessages();
+            break;
         }
       }
 
@@ -1245,6 +1248,55 @@
           `;
         } catch (error) {
           console.error("Error loading donations:", error);
+        }
+      }
+
+      async function loadMessages() {
+        try {
+          const response = await authFetch("/api/contact");
+          const res = await response.json();
+          const messages = res.data || [];
+
+          if (!messages || messages.length === 0) {
+            document.getElementById("messages-table").innerHTML =
+              '<p class="text-gray-500 text-center py-8">No contact messages yet</p>';
+            return;
+          }
+
+          document.getElementById("messages-table").innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Purpose</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${messages
+                  .map(
+                    (msg, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${msg.name || "-"}</td>
+                    <td>${msg.email || "-"}</td>
+                    <td>${msg.purpose || "-"}</td>
+                    <td>${(msg.message || "").substring(0, 80)}${msg.message && msg.message.length > 80 ? "..." : ""}</td>
+                    <td>${msg.sentAt ? new Date(msg.sentAt).toLocaleDateString() : "-"}</td>
+                  </tr>
+                `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          `;
+        } catch (error) {
+          console.error("Error loading messages:", error);
+          document.getElementById("messages-table").innerHTML =
+            '<p class="text-red-500 text-center py-8">Failed to load contact messages</p>';
         }
       }
 

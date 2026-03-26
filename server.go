@@ -987,6 +987,21 @@ func donationsColl() *mongo.Collection {
 	}
 	return mongoDB.Collection("donations")
 }
+
+func bookingsColl() *mongo.Collection {
+	if mongoDB == nil {
+		return nil
+	}
+	return mongoDB.Collection("bookings")
+}
+
+func contactsColl() *mongo.Collection {
+	if mongoDB == nil {
+		return nil
+	}
+	return mongoDB.Collection("contact_messages")
+}
+
 func inquiriesColl() *mongo.Collection {
 	if mongoDB == nil {
 		return nil
@@ -1045,6 +1060,40 @@ func syncDonationToDB(donation Donation) {
 		opts := options.Replace().SetUpsert(true)
 		if _, err := donationsColl().ReplaceOne(ctx, bson.M{"id": donation.ID}, donation, opts); err != nil {
 			log.Printf("[MONGO] syncDonationToDB error: %v", err)
+		}
+	}()
+}
+
+func syncBookingToDB(booking ServiceBooking) {
+	if bookingsColl() == nil {
+		return
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		opts := options.Replace().SetUpsert(true)
+		if _, err := bookingsColl().ReplaceOne(ctx, bson.M{"id": booking.ID}, booking, opts); err != nil {
+			log.Printf("[MONGO] syncBookingToDB error: %v", err)
+		}
+	}()
+}
+
+func syncContactMessageToDB(contact ContactForm) {
+	if contactsColl() == nil {
+		return
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		doc := bson.M{
+			"name":    contact.Name,
+			"email":   contact.Email,
+			"purpose": contact.Purpose,
+			"message": contact.Message,
+			"sentAt":  contact.SentAt,
+		}
+		if _, err := contactsColl().InsertOne(ctx, doc); err != nil {
+			log.Printf("[MONGO] syncContactMessageToDB error: %v", err)
 		}
 	}()
 }
@@ -1140,6 +1189,32 @@ func loadFromMongoDB() {
 			donations = dbDonations
 			mu.Unlock()
 			log.Printf("[MONGO] Loaded %d donations", len(donations))
+		}
+	}
+
+	// Bookings
+	if cur, err := bookingsColl().Find(ctx, bson.D{}); err == nil {
+		var dbBookings []ServiceBooking
+		if err := cur.All(ctx, &dbBookings); err == nil && len(dbBookings) > 0 {
+			mu.Lock()
+			bookings = dbBookings
+			bookingsByID = make(map[string]*ServiceBooking)
+			for i := range bookings {
+				bookingsByID[bookings[i].ID] = &bookings[i]
+			}
+			mu.Unlock()
+			log.Printf("[MONGO] Loaded %d bookings", len(bookings))
+		}
+	}
+
+	// Contact Messages
+	if cur, err := contactsColl().Find(ctx, bson.D{}); err == nil {
+		var dbContacts []ContactForm
+		if err := cur.All(ctx, &dbContacts); err == nil && len(dbContacts) > 0 {
+			mu.Lock()
+			contactMessages = dbContacts
+			mu.Unlock()
+			log.Printf("[MONGO] Loaded %d contact messages", len(contactMessages))
 		}
 	}
 
@@ -1594,6 +1669,7 @@ func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 		stats["bookings"] = stats["bookings"].(int) + 1
 	}
 	mu.Unlock()
+	syncBookingToDB(booking)
 
 	log.Printf("[INFO] Booking created: ID=%s, Service=%s, Owner=%s", booking.ID, booking.ServiceID, booking.OwnerName)
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
@@ -1623,6 +1699,7 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	contactMessages = append(contactMessages, contact)
 	mu.Unlock()
+	syncContactMessageToDB(contact)
 
 	log.Printf("[INFO] Contact message received from: %s (%s)", contact.Name, contact.Email)
 
@@ -1639,6 +1716,19 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"message": "Message sent successfully",
+	})
+}
+
+func getContactMessagesHandler(w http.ResponseWriter, _ *http.Request) {
+	mu.Lock()
+	result := make([]ContactForm, len(contactMessages))
+	copy(result, contactMessages)
+	mu.Unlock()
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"success": true,
+		"count":   len(result),
+		"data":    result,
 	})
 }
 
@@ -2100,7 +2190,19 @@ func main() {
 			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		}
 	})))
-	http.HandleFunc("/api/contact", recoverPanic(enableCORS(submitContactHandler)))
+	http.HandleFunc("/api/contact", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
+			getContactMessagesHandler(w, r)
+		case "POST":
+			submitContactHandler(w, r)
+		default:
+			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		}
+	})))
 	http.HandleFunc("/api/statistics", recoverPanic(enableCORS(getStatisticsHandler)))
 
 	http.HandleFunc("/api/auth/register", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {

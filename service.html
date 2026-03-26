@@ -29,6 +29,10 @@
       crossorigin="anonymous"
     />
     <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
@@ -167,6 +171,15 @@
         min-height: 120px;
       }
 
+      #contact {
+		scroll-margin-top: 110px;
+	  }
+
+      .flatpickr-input[readonly] {
+        background: #fff;
+        cursor: pointer;
+      }
+
       .mobile-menu {
         transform: translateX(100%);
         transition: transform 0.3s ease;
@@ -261,7 +274,7 @@
               >Donate</a
             >
             <a
-              href="index.html#contact"
+              href="#contact"
               class="nav-link text-gray-700 hover:text-amber-600"
               >Contact</a
             >
@@ -336,7 +349,7 @@
               >Donate</a
             >
             <a
-              href="index.html#contact"
+              href="#contact"
               class="block py-2 text-gray-700 hover:text-amber-600"
               >Contact</a
             >
@@ -368,7 +381,7 @@
     </section>
 
     <!-- Services and Form Section - Side by Side -->
-    <section class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30">
+    <section id="contact" class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30">
       <div class="max-w-7xl mx-auto">
         <div class="grid lg:grid-cols-[35%_65%] gap-8 items-stretch">
           <!-- Services Overview - Left Side -->
@@ -683,12 +696,11 @@
                       Preferred Time
                     </label>
                     <input
-                      type="time"
+                      type="text"
                       id="time"
                       name="time"
-                      min="09:00"
-                      max="21:00"
                       class="form-input"
+                      placeholder="Select time"
                     />
                   </div>
                 </div>
@@ -819,7 +831,7 @@
               >Services</a
             >
             <a
-              href="index.html#contact"
+              href="#contact"
               class="text-gray-400 hover:text-amber-400 transition"
               >Contact</a
             >
@@ -832,6 +844,7 @@
       </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
       // Mobile menu toggle
       const mobileMenuBtn = document.getElementById("mobile-menu-btn");
@@ -881,6 +894,31 @@
 
       // Time input validation
       const timeInput = document.getElementById("time");
+
+      if (window.flatpickr) {
+        window.flatpickr(timeInput, {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+          altInput: true,
+          altFormat: "h:i K",
+          time_24hr: false,
+          minuteIncrement: 15,
+          defaultHour: 9,
+          defaultMinute: 0,
+          onClose: function (selectedDates, dateStr) {
+            if (!dateStr) return;
+            const [hours, minutes] = dateStr.split(":").map(Number);
+            const timeInMinutes = hours * 60 + minutes;
+            if (timeInMinutes < 9 * 60 || timeInMinutes > 21 * 60) {
+              showFormError("Please select a time between 09:00 AM and 09:00 PM.");
+              timeInput.value = "";
+            } else {
+              clearFormError();
+            }
+          },
+        });
+      }
 
       timeInput.addEventListener("change", (e) => {
         const selectedTime = e.target.value;
