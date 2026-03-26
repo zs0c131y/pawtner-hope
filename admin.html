@@ -175,6 +175,7 @@
         border-radius: 50px;
         font-size: 0.75rem;
         font-weight: 600;
+        white-space: nowrap;
       }
 
       .badge-success {
@@ -1054,7 +1055,7 @@
                     <td><strong>${pet.name}</strong></td>
                     <td>${pet.species}</td>
                     <td>${pet.breed}</td>
-                    <td>${pet.age} yr${pet.age !== 1 ? "s" : ""}</td>
+                    <td>${pet.age}y</td>
                     <td><span class="badge badge-${pet.status === "Available" ? "success" : pet.status === "Adopted" ? "info" : "warning"}">${pet.status}</span></td>
                     <td>${pet.isVaccinated ? '<span style="color:#166534;">✓ Yes</span>' : '<span style="color:#92400e;">✗ No</span>'}</td>
                     <td>

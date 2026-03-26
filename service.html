@@ -172,8 +172,8 @@
       }
 
       #contact {
-		scroll-margin-top: 110px;
-	  }
+        scroll-margin-top: 110px;
+      }
 
       .flatpickr-input[readonly] {
         background: #fff;
@@ -381,7 +381,10 @@
     </section>
 
     <!-- Services and Form Section - Side by Side -->
-    <section id="contact" class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30">
+    <section
+      id="contact"
+      class="py-12 px-6 bg-gradient-to-b from-white to-amber-50/30"
+    >
       <div class="max-w-7xl mx-auto">
         <div class="grid lg:grid-cols-[35%_65%] gap-8 items-stretch">
           <!-- Services Overview - Left Side -->
@@ -911,7 +914,9 @@
             const [hours, minutes] = dateStr.split(":").map(Number);
             const timeInMinutes = hours * 60 + minutes;
             if (timeInMinutes < 9 * 60 || timeInMinutes > 21 * 60) {
-              showFormError("Please select a time between 09:00 AM and 09:00 PM.");
+              showFormError(
+                "Please select a time between 09:00 AM and 09:00 PM.",
+              );
               timeInput.value = "";
             } else {
               clearFormError();
