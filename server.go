@@ -1066,7 +1066,7 @@ func loadFromMongoDB() {
 
 // generateOTP returns a zero-padded 6-digit numeric code.
 func generateOTP() string {
-	return fmt.Sprintf("%06d", rand.Intn(10000000))
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
 }
 
 // ── OTP email template ────────────────────────────────────────────────────────
@@ -1462,6 +1462,33 @@ func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 	if booking.ServiceID == "" || booking.OwnerName == "" || booking.Email == "" {
 		respondError(w, http.StatusBadRequest, "Service ID, owner name, and email are required")
 		return
+	}
+
+	if booking.Date != "" {
+		selectedDate, err := time.Parse("2006-01-02", booking.Date)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, "Invalid date format. Use YYYY-MM-DD")
+			return
+		}
+		now := time.Now()
+		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		if selectedDate.Before(today) {
+			respondError(w, http.StatusBadRequest, "Date cannot be in the past")
+			return
+		}
+	}
+
+	if booking.Time != "" {
+		selectedTime, err := time.Parse("15:04", booking.Time)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, "Invalid time format. Use HH:MM")
+			return
+		}
+		minutes := selectedTime.Hour()*60 + selectedTime.Minute()
+		if minutes < 9*60 || minutes > 21*60 {
+			respondError(w, http.StatusBadRequest, "Time must be between 09:00 and 21:00")
+			return
+		}
 	}
 
 	booking.ID = fmt.Sprintf("book-%03d", len(bookings)+1)
@@ -1877,6 +1904,17 @@ func main() {
 	http.HandleFunc("/auth.html", recoverPanic(serveHTMLFile("auth.html")))
 	http.HandleFunc("/admin.html", recoverPanic(serveHTMLFile("admin.html")))
 	http.HandleFunc("/dashboard.html", recoverPanic(serveHTMLFile("dashboard.html")))
+	http.HandleFunc("/pet-images.js", recoverPanic(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		http.ServeFile(w, r, "pet-images.js")
+	}))
+	http.HandleFunc("/favicon.svg", recoverPanic(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "favicon.svg")
+	}))
+	http.HandleFunc("/favicon.ico", recoverPanic(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/svg+xml")
+		http.ServeFile(w, r, "favicon.svg")
+	}))
 
 	http.HandleFunc("/api/pets", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		// 2. CONTROL FLOW

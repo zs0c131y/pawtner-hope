@@ -11,6 +11,8 @@
       content="Pawtner Hope Foundation - Our Services: Pet Adoption, Rescue, Veterinary Care, Training, and More"
     />
     <meta name="theme-color" content="#d4a574" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="shortcut icon" href="/favicon.svg?v=2" />
     <title>Our Services - Pawtner Hope Foundation</title>
 
     <!-- Tailwind CSS -->
@@ -684,8 +686,8 @@
                       type="time"
                       id="time"
                       name="time"
-                      min="08:00"
-                      max="22:00"
+                      min="09:00"
+                      max="21:00"
                       class="form-input"
                     />
                   </div>
@@ -846,6 +848,19 @@
         });
       });
 
+      // Date input validation
+      const dateInput = document.getElementById("date");
+      const today = new Date();
+      const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      dateInput.min = todayString;
+
+      dateInput.addEventListener("change", (e) => {
+        if (e.target.value && e.target.value < todayString) {
+          alert("Please select today or a future date.");
+          e.target.value = "";
+        }
+      });
+
       // Time input validation
       const timeInput = document.getElementById("time");
 
@@ -854,11 +869,11 @@
         if (selectedTime) {
           const [hours, minutes] = selectedTime.split(":").map(Number);
           const timeInMinutes = hours * 60 + minutes;
-          const minTime = 8 * 60; // 08:00
-          const maxTime = 22 * 60; // 22:00
+          const minTime = 9 * 60; // 09:00
+          const maxTime = 21 * 60; // 21:00
 
           if (timeInMinutes < minTime || timeInMinutes > maxTime) {
-            alert("Please select a time between 08:00 AM and 10:00 PM");
+            alert("Please select a time between 09:00 AM and 09:00 PM");
             e.target.value = "";
           }
         }
@@ -869,6 +884,22 @@
 
       serviceForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        const selectedDate = document.getElementById("date").value;
+        if (selectedDate && selectedDate < todayString) {
+          alert("Please select today or a future date.");
+          return;
+        }
+
+        const selectedTime = document.getElementById("time").value;
+        if (selectedTime) {
+          const [hours, minutes] = selectedTime.split(":").map(Number);
+          const timeInMinutes = hours * 60 + minutes;
+          if (timeInMinutes < 9 * 60 || timeInMinutes > 21 * 60) {
+            alert("Please select a time between 09:00 AM and 09:00 PM");
+            return;
+          }
+        }
 
         try {
           const formData = {

@@ -11,6 +11,8 @@
       content="Login or Register - Pawtner Hope Foundation"
     />
     <meta name="theme-color" content="#d4a574" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="shortcut icon" href="/favicon.svg?v=2" />
     <title>Login / Register - Pawtner Hope Foundation</title>
 
     <!-- Tailwind CSS -->
@@ -129,6 +131,30 @@
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+      }
+
+      .password-field {
+        position: relative;
+      }
+
+      .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 0.875rem;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0.25rem;
+      }
+
+      .password-toggle:hover {
+        color: var(--primary-dark);
+      }
+
+      .password-field .form-input {
+        padding-right: 2.75rem;
       }
 
       .btn-primary {
@@ -305,13 +331,23 @@
                 >
                   Password
                 </label>
-                <input
-                  type="password"
-                  id="login-password"
-                  required
-                  class="form-input"
-                  placeholder="••••••••"
-                />
+                <div class="password-field">
+                  <input
+                    type="password"
+                    id="login-password"
+                    required
+                    class="form-input"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="login-password"
+                    aria-label="Show password"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
 
               <button type="submit" class="btn-primary">
@@ -376,14 +412,24 @@
                 >
                   Password
                 </label>
-                <input
-                  type="password"
-                  id="register-password"
-                  required
-                  class="form-input"
-                  placeholder="••••••••"
-                  minlength="6"
-                />
+                <div class="password-field">
+                  <input
+                    type="password"
+                    id="register-password"
+                    required
+                    class="form-input"
+                    placeholder="••••••••"
+                    minlength="6"
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="register-password"
+                    aria-label="Show password"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -393,14 +439,24 @@
                 >
                   Confirm Password
                 </label>
-                <input
-                  type="password"
-                  id="register-confirm-password"
-                  required
-                  class="form-input"
-                  placeholder="••••••••"
-                  minlength="6"
-                />
+                <div class="password-field">
+                  <input
+                    type="password"
+                    id="register-confirm-password"
+                    required
+                    class="form-input"
+                    placeholder="••••••••"
+                    minlength="6"
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="register-confirm-password"
+                    aria-label="Show password"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
 
               <button type="submit" class="btn-primary">
@@ -500,6 +556,25 @@
           document
             .querySelectorAll('[id$="-success"]')
             .forEach((el) => el.classList.add("hidden"));
+        });
+      });
+
+      // Password visibility toggles
+      document.querySelectorAll(".password-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.target;
+          const input = document.getElementById(targetId);
+          if (!input) return;
+
+          const icon = btn.querySelector("i");
+          const showing = input.type === "text";
+          input.type = showing ? "password" : "text";
+          icon.classList.toggle("fa-eye", showing);
+          icon.classList.toggle("fa-eye-slash", !showing);
+          btn.setAttribute(
+            "aria-label",
+            showing ? "Show password" : "Hide password",
+          );
         });
       });
 

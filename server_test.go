@@ -22,11 +22,17 @@ func TestMain(m *testing.M) {
 func TestHashPassword(t *testing.T) {
 	h1 := hashPassword("secret")
 	h2 := hashPassword("secret")
-	if h1 != h2 {
-		t.Error("same password should produce same hash")
+	if h1 == h2 {
+		t.Error("bcrypt hashes should be different due to salting")
 	}
 	if h1 == "secret" {
 		t.Error("hash should not equal plaintext")
+	}
+	if !checkPassword(h1, "secret") {
+		t.Error("hash should validate the original password")
+	}
+	if checkPassword(h1, "wrong") {
+		t.Error("hash should reject a wrong password")
 	}
 }
 

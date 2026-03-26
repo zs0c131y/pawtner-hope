@@ -15,7 +15,10 @@
       content="pet adoption, dog rescue, animal welfare, Bengaluru, pet care, adopt a pet"
     />
     <meta name="theme-color" content="#d4a574" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="shortcut icon" href="/favicon.svg?v=2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
@@ -289,90 +292,30 @@
         transform: translateX(0);
       }
 
-      /* Video modal */
-      .video-modal {
-        position: relative;
-        cursor: pointer;
+      .mission-video-section {
+        min-height: calc(100vh - var(--nav-height, 88px));
+        display: flex;
+        align-items: stretch;
+      }
+
+      .mission-video-shell {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .mission-video-frame {
+        flex: 1;
         border-radius: 20px;
         overflow: hidden;
+        box-shadow: 0 20px 50px rgba(44, 36, 22, 0.16);
       }
 
-      .video-thumbnail {
-        position: relative;
-      }
-
-      .play-button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      }
-
-      .play-button:hover {
-        transform: translate(-50%, -50%) scale(1.1);
-        background: white;
-      }
-
-      .play-icon {
-        width: 0;
-        height: 0;
-        border-left: 20px solid var(--primary);
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        margin-left: 5px;
-      }
-
-      /* Modal overlay */
-      .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-      }
-
-      .modal-overlay.active {
-        display: flex;
-      }
-
-      .modal-content {
-        max-width: 1200px;
+      .mission-video-frame video {
         width: 100%;
-        position: relative;
-      }
-
-      .modal-close {
-        position: absolute;
-        top: -50px;
-        right: 0;
-        background: white;
-        color: var(--dark);
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 50px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-      }
-
-      .modal-close:hover {
-        background: var(--primary);
-        color: white;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
 
       /* Lazy load animation */
@@ -462,27 +405,6 @@
         .gallery-grid {
           grid-template-columns: 1fr;
           gap: 1rem;
-        }
-
-        .play-button {
-          width: 60px;
-          height: 60px;
-        }
-
-        .play-icon {
-          border-left: 15px solid var(--primary);
-          border-top: 9px solid transparent;
-          border-bottom: 9px solid transparent;
-        }
-
-        .modal-content {
-          padding: 0 1rem;
-        }
-
-        .modal-close {
-          top: -45px;
-          padding: 0.5rem 1.25rem;
-          font-size: 0.875rem;
         }
 
         nav .max-w-7xl {
@@ -680,14 +602,9 @@
         }
       }
 
-      /* Video Modal Responsive */
       @media (max-width: 768px) {
-        .modal-overlay {
-          padding: 1rem;
-        }
-
-        .modal-content video {
-          border-radius: 12px;
+        .mission-video-section {
+          min-height: calc(100vh - var(--nav-height, 72px));
         }
       }
 
@@ -1009,8 +926,8 @@
     </section>
 
     <!-- Mission Video Section -->
-    <section class="py-6 px-6 bg-gradient-to-b from-white to-amber-50/30">
-      <div class="max-w-5xl mx-auto text-center">
+    <section class="mission-video-section px-6 bg-gradient-to-b from-white to-amber-50/30">
+      <div class="max-w-5xl mx-auto w-full mission-video-shell text-center">
         <h2 class="text-4xl font-bold mb-2" style="color: var(--dark)">
           Our Mission in Action
         </h2>
@@ -1018,39 +935,26 @@
           Watch how we rescue, rehabilitate, and rehome pets across Bengaluru
         </p>
 
-        <div class="video-modal" id="video-trigger">
-          <div class="video-thumbnail">
-            <img
-              src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-              alt="Mission video thumbnail"
-              class="w-full rounded-2xl shadow-xl lazy-load"
-              loading="lazy"
+        <div class="mission-video-frame">
+          <video
+            id="mission-video"
+            class="lazy-load"
+            controls
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          >
+            <source
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              type="video/mp4"
             />
-            <div class="play-button">
-              <div class="play-icon"></div>
-            </div>
-          </div>
+            Your browser does not support the video tag.
+          </video>
         </div>
       </div>
     </section>
-
-    <!-- Video Modal -->
-    <div class="modal-overlay" id="video-modal">
-      <div class="modal-content">
-        <button class="modal-close" id="close-modal">Close</button>
-        <video
-          id="mission-video"
-          controls
-          class="w-full rounded-2xl shadow-2xl"
-        >
-          <source
-            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </div>
 
     <!-- Available Pets Section -->
     <section id="pets" class="py-6 px-6">
@@ -1073,7 +977,7 @@
         </div>
 
         <div class="text-center mt-12">
-          <a href="./availpets.html" class="btn-primary"
+          <a href="adoption.html" class="btn-primary"
             >View All Available Pets</a
           >
         </div>
@@ -1402,6 +1306,7 @@
       </div>
     </footer>
 
+    <script src="/pet-images.js?v=2"></script>
     <script>
       // Mobile menu toggle
       const mobileMenuBtn = document.getElementById("mobile-menu-btn");
@@ -1423,30 +1328,56 @@
         });
       });
 
-      // Video modal
-      const videoTrigger = document.getElementById("video-trigger");
-      const videoModal = document.getElementById("video-modal");
-      const closeModal = document.getElementById("close-modal");
-      const missionVideo = document.getElementById("mission-video");
+      if (typeof window.getPetImageUrl !== "function") {
+        const localPetImages = {
+          dog: [
+            "https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=500&q=80",
+          ],
+          cat: [
+            "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1478098711619-5ab0b478d6e6?auto=format&fit=crop&w=500&q=80",
+          ],
+          bird: [
+            "https://images.unsplash.com/photo-1552728089-57bdde30beb3?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=500&q=80",
+          ],
+          other: [
+            "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=500&q=80",
+          ],
+        };
+        window.getPetImageUrl = function (pet) {
+          const species = String((pet && pet.species) || "other").toLowerCase();
+          const pool = localPetImages[species] || localPetImages.other;
+          const numericPart =
+            Number(String((pet && pet.id) || "").replace(/\D/g, "")) || 0;
+          return pool[numericPart % pool.length];
+        };
+        window.getPetFallbackImageUrl = function () {
+          return "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=500&q=80";
+        };
+      }
 
-      videoTrigger.addEventListener("click", () => {
-        videoModal.classList.add("active");
-        missionVideo.play();
-      });
+      function setNavHeightVariable() {
+        const navEl = document.querySelector("nav");
+        if (!navEl) return;
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${navEl.offsetHeight}px`,
+        );
+      }
 
-      closeModal.addEventListener("click", () => {
-        videoModal.classList.remove("active");
-        missionVideo.pause();
-        missionVideo.currentTime = 0;
-      });
-
-      videoModal.addEventListener("click", (e) => {
-        if (e.target === videoModal) {
-          videoModal.classList.remove("active");
-          missionVideo.pause();
-          missionVideo.currentTime = 0;
-        }
-      });
+      setNavHeightVariable();
+      window.addEventListener("resize", setNavHeightVariable);
 
       // Lazy load images
       const lazyImages = document.querySelectorAll(".lazy-load");
@@ -1467,14 +1398,13 @@
 
       lazyImages.forEach((img) => imageObserver.observe(img));
 
-      // Load pets data from API
       async function loadPets() {
         const petsContainer = document.getElementById("pets-container");
 
         try {
           const response = await fetch("/api/pets");
           const result = await response.json();
-          const pets = result.data || [];
+          const pets = (result.data || []).slice(0, 6);
 
           petsContainer.innerHTML = pets
             .map(
@@ -1482,10 +1412,11 @@
                   <div class="card pet-card">
                       <div class="relative overflow-hidden">
                           <img 
-                              src="https://images.unsplash.com/photo-1558788353-f76d92427f16?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                                src="${getPetImageUrl(pet)}" 
                               alt="${pet.name}" 
                               class="w-full h-64 object-cover"
                               loading="lazy"
+                                  onerror="this.src=getPetFallbackImageUrl()"
                           >
                           <div class="pet-badge">${pet.gender}</div>
                       </div>
@@ -1494,8 +1425,8 @@
                           <p class="text-gray-600 mb-4">${pet.breed} • ${pet.age} years</p>
                           <p class="text-gray-500 mb-6">${pet.description}</p>
                           <div class="flex gap-3">
-                              <a href="#contact" class="btn-primary">Adopt Me</a>
-                              <a href="#pets" class="btn-secondary ml-auto">View Details</a>
+                                <a href="adoption.html?petId=${encodeURIComponent(pet.id)}" class="btn-primary">Adopt Me</a>
+                                <a href="adoption.html?petId=${encodeURIComponent(pet.id)}" class="btn-secondary ml-auto">View Details</a>
                           </div>
                       </div>
                   </div>
