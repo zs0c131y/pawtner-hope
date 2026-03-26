@@ -246,6 +246,44 @@
         background: #f7f3ef;
       }
 
+      .btn-refresh:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
+      }
+
+      .btn-refresh .fa-spin {
+        color: var(--primary-dark);
+      }
+
+      .toast {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 1200;
+        padding: 0.65rem 0.9rem;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 0.85rem;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast.success {
+        background: #166534;
+      }
+
+      .toast.error {
+        background: #b91c1c;
+      }
+
       .btn-logout {
         background: rgba(44, 36, 22, 0.24);
         border: 1px solid rgba(255, 255, 255, 0.35);
@@ -547,7 +585,7 @@
             <h1 class="text-3xl font-bold mb-2">Adoption Inquiries</h1>
             <p class="text-gray-600">Manage adoption requests</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('adoptions')">
+          <button class="btn-refresh" onclick="refreshSection('adoptions', this)">
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -564,7 +602,7 @@
             <h1 class="text-3xl font-bold mb-2">Service Bookings</h1>
             <p class="text-gray-600">Manage service appointments</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('bookings')">
+          <button class="btn-refresh" onclick="refreshSection('bookings', this)">
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -581,7 +619,7 @@
             <h1 class="text-3xl font-bold mb-2">Donations</h1>
             <p class="text-gray-600">View donation history</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('donations')">
+          <button class="btn-refresh" onclick="refreshSection('donations', this)">
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -598,7 +636,7 @@
             <h1 class="text-3xl font-bold mb-2">Contact Messages</h1>
             <p class="text-gray-600">Messages from visitors</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('messages')">
+          <button class="btn-refresh" onclick="refreshSection('messages', this)">
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -744,21 +782,21 @@
         <div class="flex flex-wrap gap-2 justify-end">
           <button
             type="button"
-            class="btn btn-secondary"
+            class="btn btn-secondary inquiry-status-btn"
             onclick="setInquiryStatus('Pending')"
           >
             Mark Pending
           </button>
           <button
             type="button"
-            class="btn btn-danger"
+            class="btn btn-danger inquiry-status-btn"
             onclick="setInquiryStatus('Rejected')"
           >
             Reject
           </button>
           <button
             type="button"
-            class="btn btn-primary"
+            class="btn btn-primary inquiry-status-btn"
             onclick="setInquiryStatus('Approved')"
           >
             Approve
@@ -771,6 +809,7 @@
       let petModalMode = "add"; // 'add' | 'edit'
       let _adoptionsCache = [];
       let _activeInquiryId = "";
+      let _statusUpdateInFlight = false;
 
       function openPetModal(pet) {
         petModalMode = pet ? "edit" : "add";
@@ -876,8 +915,48 @@
         );
       }
 
-      async function refreshSection(section) {
-        await loadSectionData(section);
+      function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.add("show");
+        });
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => {
+            toast.remove();
+          }, 250);
+        }, 1800);
+      }
+
+      function setRefreshButtonLoading(button, isLoading) {
+        if (!button) return;
+        const icon = button.querySelector("i");
+
+        button.disabled = isLoading;
+        if (icon) {
+          if (isLoading) {
+            icon.classList.add("fa-spin");
+          } else {
+            icon.classList.remove("fa-spin");
+          }
+        }
+      }
+
+      async function refreshSection(section, button) {
+        setRefreshButtonLoading(button, true);
+        const ok = await loadSectionData(section);
+        setRefreshButtonLoading(button, false);
+
+        if (ok) {
+          showToast(`${section.charAt(0).toUpperCase() + section.slice(1)} refreshed`);
+        } else {
+          showToast(`Failed to refresh ${section}`, "error");
+        }
       }
 
       async function enforceAdminAccess() {
@@ -978,8 +1057,10 @@
             stats.totalBookings || 0;
           document.getElementById("stat-users").textContent =
             stats.totalUsers || 0;
+          return true;
         } catch (error) {
           console.error("Error loading statistics:", error);
+          return false;
         }
       }
 
@@ -987,24 +1068,19 @@
       async function loadSectionData(section) {
         switch (section) {
           case "overview":
-            loadStatistics();
-            loadRecentAdoptions();
-            break;
+            return (await loadStatistics()) && (await loadRecentAdoptions());
           case "pets":
-            loadPets();
-            break;
+            return await loadPets();
           case "adoptions":
-            loadAdoptions();
-            break;
+            return await loadAdoptions();
           case "bookings":
-            loadBookings();
-            break;
+            return await loadBookings();
           case "donations":
-            loadDonations();
-            break;
+            return await loadDonations();
           case "messages":
-            loadMessages();
-            break;
+            return await loadMessages();
+          default:
+            return false;
         }
       }
 
@@ -1018,7 +1094,7 @@
           if (!adoptions || adoptions.length === 0) {
             document.getElementById("recent-adoptions").innerHTML =
               '<p class="text-gray-500 text-center py-4">No adoption inquiries yet</p>';
-            return;
+            return true;
           }
 
           const recentAdoptions = adoptions.slice(0, 5);
@@ -1050,10 +1126,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading adoptions:", error);
           document.getElementById("recent-adoptions").innerHTML =
             '<p class="text-red-500 text-center py-4">Failed to load adoption inquiries</p>';
+          return false;
         }
       }
 
@@ -1071,7 +1149,7 @@
           if (pets.length === 0) {
             document.getElementById("pets-table").innerHTML =
               '<p class="text-gray-500 text-center py-8">No pets found. Click "Add Pet" to add one.</p>';
-            return;
+            return true;
           }
 
           document.getElementById("pets-table").innerHTML = `
@@ -1117,10 +1195,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading pets:", error);
           document.getElementById("pets-table").innerHTML =
             '<p class="text-red-500 text-center py-8">Failed to load pets</p>';
+          return false;
         }
       }
 
@@ -1143,7 +1223,7 @@
           if (!adoptions || adoptions.length === 0) {
             document.getElementById("adoptions-table").innerHTML =
               '<p class="text-gray-500 text-center py-8">No adoption inquiries yet</p>';
-            return;
+            return true;
           }
 
           document.getElementById("adoptions-table").innerHTML = `
@@ -1171,7 +1251,7 @@
                     <td>${adoption.phone}</td>
                     <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
                     <td>
-                      ${adoption.message ? `<button class="msg-btn" onclick="openInquiryModal('${adoption.id}')">View message</button>` : '<span class="text-gray-400">-</span>'}
+                      ${adoption.message ? `${adoption.message.substring(0, 48)}${adoption.message.length > 48 ? "..." : ""}` : '<span class="text-gray-400">-</span>'}
                     </td>
                     <td>
                       <button class="btn btn-secondary action-btn" onclick="openInquiryModal('${adoption.id}')">
@@ -1186,8 +1266,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading adoptions:", error);
+          document.getElementById("adoptions-table").innerHTML =
+            '<p class="text-red-500 text-center py-8">Failed to load adoption inquiries</p>';
+          return false;
         }
       }
 
@@ -1204,7 +1288,7 @@
           if (!bookings || bookings.length === 0) {
             document.getElementById("bookings-table").innerHTML =
               '<p class="text-gray-500 text-center py-8">No bookings yet</p>';
-            return;
+            return true;
           }
 
           document.getElementById("bookings-table").innerHTML = `
@@ -1239,10 +1323,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading bookings:", error);
           document.getElementById("bookings-table").innerHTML =
             '<p class="text-red-500 text-center py-8">Failed to load bookings</p>';
+          return false;
         }
       }
 
@@ -1259,7 +1345,7 @@
           if (!donations || donations.length === 0) {
             document.getElementById("donations-table").innerHTML =
               '<p class="text-gray-500 text-center py-8">No donations yet</p>';
-            return;
+            return true;
           }
 
           document.getElementById("donations-table").innerHTML = `
@@ -1296,10 +1382,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading donations:", error);
           document.getElementById("donations-table").innerHTML =
             '<p class="text-red-500 text-center py-8">Failed to load donations</p>';
+          return false;
         }
       }
 
@@ -1315,7 +1403,7 @@
           if (!messages || messages.length === 0) {
             document.getElementById("messages-table").innerHTML =
               '<p class="text-gray-500 text-center py-8">No contact messages yet</p>';
-            return;
+            return true;
           }
 
           document.getElementById("messages-table").innerHTML = `
@@ -1348,10 +1436,12 @@
               </tbody>
             </table>
           `;
+          return true;
         } catch (error) {
           console.error("Error loading messages:", error);
           document.getElementById("messages-table").innerHTML =
             '<p class="text-red-500 text-center py-8">Failed to load contact messages</p>';
+          return false;
         }
       }
 
@@ -1386,10 +1476,18 @@
       }
 
       async function setInquiryStatus(status) {
-        if (!_activeInquiryId) return;
+        if (!_activeInquiryId || _statusUpdateInFlight) return;
+        _statusUpdateInFlight = true;
+
+        const actionButtons = document.querySelectorAll(".inquiry-status-btn");
+        actionButtons.forEach((btn) => {
+          btn.disabled = true;
+        });
+
         try {
+          const inquiryID = _activeInquiryId;
           const response = await authFetch(
-            `/api/adoptions/${_activeInquiryId}/status`,
+            `/api/adoptions/${inquiryID}/status`,
             {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -1400,12 +1498,24 @@
           if (!response.ok || !res.success) {
             throw new Error(res.message || "Failed to update inquiry status");
           }
-          closeInquiryModal();
+
           await loadAdoptions();
+          const updated = _adoptionsCache.find((a) => a.id === inquiryID);
+          if (!updated || updated.status !== status) {
+            throw new Error("Status change was not persisted on the server");
+          }
+
+          closeInquiryModal();
           await loadRecentAdoptions();
           await loadStatistics();
+          showToast(`Inquiry marked as ${status}`);
         } catch (error) {
-          alert(`Error: ${error.message}`);
+          showToast(`Error: ${error.message}`, "error");
+        } finally {
+          _statusUpdateInFlight = false;
+          actionButtons.forEach((btn) => {
+            btn.disabled = false;
+          });
         }
       }
 

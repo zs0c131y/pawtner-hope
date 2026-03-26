@@ -511,4 +511,54 @@ func TestCreateDonationHandler(t *testing.T) {
 	}
 }
 
+func TestUpdateAdoptionInquiryStatusHandler(t *testing.T) {
+	initializeData()
+	inquiries = append(inquiries, AdoptionInquiry{
+		ID:          "inq-test-001",
+		PetID:       "pet-001",
+		AdopterName: "Test User",
+		Email:       "test@example.com",
+		Status:      "Pending",
+	})
+
+	body := bytes.NewBufferString(`{"status":"Approved"}`)
+	req := httptest.NewRequest("PUT", "/api/adoptions/inq-test-001/status", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+
+	updateAdoptionInquiryStatusHandler(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+
+	if inquiries[len(inquiries)-1].Status != "Approved" {
+		t.Fatalf("expected inquiry status to be Approved, got %s", inquiries[len(inquiries)-1].Status)
+	}
+}
+
+func TestUpdateAdoptionInquiryStatusHandlerInvalidStatus(t *testing.T) {
+	initializeData()
+	inquiries = append(inquiries, AdoptionInquiry{
+		ID:          "inq-test-002",
+		PetID:       "pet-001",
+		AdopterName: "Test User",
+		Email:       "test@example.com",
+		Status:      "Pending",
+	})
+
+	body := bytes.NewBufferString(`{"status":"Done"}`)
+	req := httptest.NewRequest("PUT", "/api/adoptions/inq-test-002/status", body)
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+
+	updateAdoptionInquiryStatusHandler(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rr.Code)
+	}
+
+	if inquiries[len(inquiries)-1].Status != "Pending" {
+		t.Fatalf("status should remain Pending on invalid update, got %s", inquiries[len(inquiries)-1].Status)
+	}
+}
+
 // Test middleware behavior, routing logic

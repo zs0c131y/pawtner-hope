@@ -782,7 +782,13 @@ func ProcessDonation(donation *Donation) (*Receipt, error) {
 	donations = append(donations, *donation)
 	mu.Unlock()
 
-	syncDonationToDB(*donation)
+	if err := syncDonationToDB(*donation); err != nil {
+		mu.Lock()
+		donations = donations[:len(donations)-1]
+		mu.Unlock()
+		return nil, fmt.Errorf("failed to save donation to database")
+	}
+
 	receipt := GenerateReceipt(*donation)
 	return &receipt, nil
 }
@@ -1009,7 +1015,7 @@ func bookingsColl() *mongo.Collection {
 	if mongoDB == nil {
 		return nil
 	}
-	return mongoDB.Collection("bookings")
+	return mongoDB.Collection("services")
 }
 
 func contactsColl() *mongo.Collection {
@@ -1067,66 +1073,66 @@ func syncUserToDB(user User) {
 	}()
 }
 
-func syncDonationToDB(donation Donation) {
+func syncDonationToDB(donation Donation) error {
 	if donationsColl() == nil {
-		return
+		return nil
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		opts := options.Replace().SetUpsert(true)
-		if _, err := donationsColl().ReplaceOne(ctx, bson.M{"id": donation.ID}, donation, opts); err != nil {
-			log.Printf("[MONGO] syncDonationToDB error: %v", err)
-		}
-	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.Replace().SetUpsert(true)
+	_, err := donationsColl().ReplaceOne(ctx, bson.M{"id": donation.ID}, donation, opts)
+	if err != nil {
+		log.Printf("[MONGO] syncDonationToDB error: %v", err)
+	}
+	return err
 }
 
-func syncBookingToDB(booking ServiceBooking) {
+func syncBookingToDB(booking ServiceBooking) error {
 	if bookingsColl() == nil {
-		return
+		return nil
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		opts := options.Replace().SetUpsert(true)
-		if _, err := bookingsColl().ReplaceOne(ctx, bson.M{"id": booking.ID}, booking, opts); err != nil {
-			log.Printf("[MONGO] syncBookingToDB error: %v", err)
-		}
-	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.Replace().SetUpsert(true)
+	_, err := bookingsColl().ReplaceOne(ctx, bson.M{"id": booking.ID}, booking, opts)
+	if err != nil {
+		log.Printf("[MONGO] syncBookingToDB error: %v", err)
+	}
+	return err
 }
 
-func syncContactMessageToDB(contact ContactForm) {
+func syncContactMessageToDB(contact ContactForm) error {
 	if contactsColl() == nil {
-		return
+		return nil
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		doc := bson.M{
-			"name":    contact.Name,
-			"email":   contact.Email,
-			"purpose": contact.Purpose,
-			"message": contact.Message,
-			"sentAt":  contact.SentAt,
-		}
-		if _, err := contactsColl().InsertOne(ctx, doc); err != nil {
-			log.Printf("[MONGO] syncContactMessageToDB error: %v", err)
-		}
-	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	doc := bson.M{
+		"name":    contact.Name,
+		"email":   contact.Email,
+		"purpose": contact.Purpose,
+		"message": contact.Message,
+		"sentAt":  contact.SentAt,
+	}
+	_, err := contactsColl().InsertOne(ctx, doc)
+	if err != nil {
+		log.Printf("[MONGO] syncContactMessageToDB error: %v", err)
+	}
+	return err
 }
 
-func syncInquiryToDB(inquiry AdoptionInquiry) {
+func syncInquiryToDB(inquiry AdoptionInquiry) error {
 	if inquiriesColl() == nil {
-		return
+		return nil
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		opts := options.Replace().SetUpsert(true)
-		if _, err := inquiriesColl().ReplaceOne(ctx, bson.M{"id": inquiry.ID}, inquiry, opts); err != nil {
-			log.Printf("[MONGO] syncInquiryToDB error: %v", err)
-		}
-	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.Replace().SetUpsert(true)
+	_, err := inquiriesColl().ReplaceOne(ctx, bson.M{"id": inquiry.ID}, inquiry, opts)
+	if err != nil {
+		log.Printf("[MONGO] syncInquiryToDB error: %v", err)
+	}
+	return err
 }
 
 // loadFromMongoDB seeds in-memory data from MongoDB collections on startup.
@@ -1686,7 +1692,18 @@ func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 		stats["bookings"] = stats["bookings"].(int) + 1
 	}
 	mu.Unlock()
-	syncBookingToDB(booking)
+
+	if err := syncBookingToDB(booking); err != nil {
+		mu.Lock()
+		bookings = bookings[:len(bookings)-1]
+		delete(bookingsByID, booking.ID)
+		if stats, exists := serviceStats[booking.ServiceID]; exists {
+			stats["bookings"] = stats["bookings"].(int) - 1
+		}
+		mu.Unlock()
+		respondError(w, http.StatusInternalServerError, "Failed to save booking. Please try again.")
+		return
+	}
 
 	if smtpUser != "" {
 		go func(b ServiceBooking) {
@@ -1737,7 +1754,14 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	contactMessages = append(contactMessages, contact)
 	mu.Unlock()
-	syncContactMessageToDB(contact)
+
+	if err := syncContactMessageToDB(contact); err != nil {
+		mu.Lock()
+		contactMessages = contactMessages[:len(contactMessages)-1]
+		mu.Unlock()
+		respondError(w, http.StatusInternalServerError, "Failed to save your message. Please try again.")
+		return
+	}
 
 	log.Printf("[INFO] Contact message received from: %s (%s)", contact.Name, contact.Email)
 
@@ -1995,7 +2019,14 @@ func createAdoptionInquiryHandler(w http.ResponseWriter, r *http.Request) {
 	inquiries = append(inquiries, inquiry)
 	mu.Unlock()
 
-	syncInquiryToDB(inquiry)
+	if err := syncInquiryToDB(inquiry); err != nil {
+		mu.Lock()
+		inquiries = inquiries[:len(inquiries)-1]
+		mu.Unlock()
+		respondError(w, http.StatusInternalServerError, "Failed to save adoption inquiry. Please try again.")
+		return
+	}
+
 	log.Printf("[INFO] Adoption inquiry: Pet=%s, Adopter=%s (%s)", inquiry.PetID, inquiry.AdopterName, inquiry.Email)
 
 	// 10. CONCURRENCY
@@ -2071,24 +2102,45 @@ func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	mu.Lock()
-	defer mu.Unlock()
+	var oldStatus string
+	var updated AdoptionInquiry
+	found := false
 
+	mu.Lock()
 	for i := range inquiries {
 		if inquiries[i].ID == inquiryID {
+			oldStatus = inquiries[i].Status
 			inquiries[i].Status = req.Status
-			updated := inquiries[i]
-			syncInquiryToDB(updated)
-			respondJSON(w, http.StatusOK, map[string]interface{}{
-				"success": true,
-				"message": "Inquiry status updated",
-				"data":    updated,
-			})
-			return
+			updated = inquiries[i]
+			found = true
+			break
 		}
 	}
+	mu.Unlock()
 
-	respondError(w, http.StatusNotFound, "Adoption inquiry not found")
+	if !found {
+		respondError(w, http.StatusNotFound, "Adoption inquiry not found")
+		return
+	}
+
+	if err := syncInquiryToDB(updated); err != nil {
+		mu.Lock()
+		for i := range inquiries {
+			if inquiries[i].ID == inquiryID {
+				inquiries[i].Status = oldStatus
+				break
+			}
+		}
+		mu.Unlock()
+		respondError(w, http.StatusInternalServerError, "Failed to persist inquiry status")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"success": true,
+		"message": "Inquiry status updated",
+		"data":    updated,
+	})
 }
 
 func createDonationHandler(w http.ResponseWriter, r *http.Request) {
