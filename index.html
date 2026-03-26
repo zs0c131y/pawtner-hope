@@ -1503,8 +1503,16 @@
               message: message,
             }),
           })
-            .then((response) => response.json())
-            .then((data) => {
+            .then(async (response) => {
+              const data = await response.json().catch(() => ({}));
+              if (!response.ok || data.success === false) {
+                throw new Error(
+                  data.message || "Failed to submit contact form",
+                );
+              }
+              return data;
+            })
+            .then(() => {
               // Show success message
               document
                 .getElementById("form-success")
@@ -1520,7 +1528,10 @@
             })
             .catch((error) => {
               console.error("Error submitting contact form:", error);
-              alert("Failed to submit the form. Please try again later.");
+              alert(
+                error.message ||
+                  "Failed to submit the form. Please try again later.",
+              );
             });
         }
       });

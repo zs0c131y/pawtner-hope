@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -31,7 +32,10 @@ var (
 	ErrPetNotFound        = errors.New("pet not found")
 	ErrInvalidPayment     = errors.New("invalid payment details")
 	ErrEmailFailed        = errors.New("email delivery failed")
+	ErrTokenGeneration    = errors.New("failed to generate token")
 )
+
+const authTokenTTL = 7 * 24 * time.Hour
 
 // 6. INTERFACE
 type Filterable interface {
@@ -520,7 +524,27 @@ func checkPassword(hashed, plain string) bool {
 }
 
 func generateToken(userID string) string {
-	return fmt.Sprintf("tok_%s_%d", userID, time.Now().UnixNano())
+	expiresAt := time.Now().Add(authTokenTTL)
+	claims := jwt.RegisteredClaims{
+		Subject:   userID,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(expiresAt),
+	}
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := jwtToken.SignedString(getJWTSecret())
+	if err != nil {
+		log.Printf("[ERROR] Failed to sign JWT for %s: %v", userID, err)
+		return ""
+	}
+	return signed
+}
+
+func getJWTSecret() []byte {
+	secret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
+	if secret == "" {
+		secret = "pawtner-hope-dev-secret-change-me"
+	}
+	return []byte(secret)
 }
 
 func Register(email, username, password string) (*User, error) {
@@ -563,16 +587,15 @@ func Login(email, password string) (*AuthToken, error) {
 	token := AuthToken{
 		Token:     generateToken(user.ID),
 		UserID:    user.ID,
-		ExpiresAt: time.Now().Add(24 * time.Hour),
+		ExpiresAt: time.Now().Add(authTokenTTL),
 		Role:      user.Role,
 		IsAdmin:   user.IsAdmin,
 		Username:  user.Username,
 		Email:     user.Email,
 	}
-
-	mu.Lock()
-	tokenStore[token.Token] = &token
-	mu.Unlock()
+	if token.Token == "" {
+		return nil, ErrTokenGeneration
+	}
 	return &token, nil
 }
 
@@ -581,34 +604,28 @@ func ValidateToken(tokenStr string) (*User, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	mu.Lock()
-	token, exists := tokenStore[tokenStr]
-	if !exists {
-		mu.Unlock()
+	claims := &jwt.RegisteredClaims{}
+	parsedToken, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrInvalidCredentials
+		}
+		return getJWTSecret(), nil
+	})
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		}
 		return nil, ErrInvalidCredentials
 	}
-
-	if time.Now().After(token.ExpiresAt) {
-		delete(tokenStore, tokenStr)
-		mu.Unlock()
-		return nil, ErrTokenExpired
+	if !parsedToken.Valid || strings.TrimSpace(claims.Subject) == "" {
+		return nil, ErrInvalidCredentials
 	}
-	userID := token.UserID
-	mu.Unlock()
+	userID := strings.TrimSpace(claims.Subject)
 
 	user, err := getUserByIDLive(userID)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
-
-	mu.Lock()
-	if latestToken, ok := tokenStore[tokenStr]; ok {
-		latestToken.Role = user.Role
-		latestToken.IsAdmin = user.IsAdmin
-		latestToken.Username = user.Username
-		latestToken.Email = user.Email
-	}
-	mu.Unlock()
 
 	return user, nil
 }
@@ -1671,6 +1688,27 @@ func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 	syncBookingToDB(booking)
 
+	if smtpUser != "" {
+		go func(b ServiceBooking) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Service Booking Inquiry",
+				Body: fmt.Sprintf(
+					"New booking inquiry received.\n\nOwner: %s\nEmail: %s\nPhone: %s\nService: %s\nDate: %s\nTime: %s\nNotes: %s\nID: %s",
+					b.OwnerName,
+					b.Email,
+					b.Phone,
+					b.ServiceID,
+					b.Date,
+					b.Time,
+					b.Notes,
+					b.ID,
+				),
+				JobType: "booking-admin",
+			}
+		}(booking)
+	}
+
 	log.Printf("[INFO] Booking created: ID=%s, Service=%s, Owner=%s", booking.ID, booking.ServiceID, booking.OwnerName)
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
 		"success": true,
@@ -1712,6 +1750,24 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 			JobType: "contact",
 		}
 	}()
+
+	if smtpUser != "" {
+		go func(c ContactForm) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Contact Enquiry",
+				Body: fmt.Sprintf(
+					"New contact enquiry received.\n\nName: %s\nEmail: %s\nPurpose: %s\nMessage: %s\nSent At: %s",
+					c.Name,
+					c.Email,
+					c.Purpose,
+					c.Message,
+					c.SentAt.Format(time.RFC1123),
+				),
+				JobType: "contact-admin",
+			}
+		}(contact)
+	}
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
@@ -1873,6 +1929,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// 5. FUNCTIONS AND ERROR HANDLING
 	token, err := Login(req.Email, req.Password)
 	if err != nil {
+		if errors.Is(err, ErrTokenGeneration) {
+			respondError(w, http.StatusInternalServerError, "Failed to issue auth token")
+			return
+		}
 		log.Printf("[WARN] Failed login attempt for: %s", req.Email)
 		respondError(w, http.StatusUnauthorized, err.Error())
 		return
@@ -1947,6 +2007,25 @@ func createAdoptionInquiryHandler(w http.ResponseWriter, r *http.Request) {
 			JobType: "adoption",
 		}
 	}()
+
+	if smtpUser != "" {
+		go func(i AdoptionInquiry) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Adoption Enquiry",
+				Body: fmt.Sprintf(
+					"New adoption enquiry received.\n\nPet ID: %s\nAdopter: %s\nEmail: %s\nPhone: %s\nMessage: %s\nInquiry ID: %s",
+					i.PetID,
+					i.AdopterName,
+					i.Email,
+					i.Phone,
+					i.Message,
+					i.ID,
+				),
+				JobType: "adoption-admin",
+			}
+		}(inquiry)
+	}
 
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
 		"success": true,
