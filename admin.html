@@ -274,6 +274,7 @@
         padding: 0.32rem 0.65rem;
         border-radius: 999px;
         font-size: 0.78rem;
+        white-space: nowrap;
       }
 
       .msg-btn:hover {
@@ -984,7 +985,6 @@
                 <tr>
                   <th>Pet ID</th>
                   <th>Adopter Name</th>
-                  <th>Email</th>
                   <th>Phone</th>
                   <th>Status</th>
                   <th>Date</th>
@@ -997,7 +997,6 @@
                   <tr>
                     <td>${adoption.petId}</td>
                     <td>${adoption.adopterName}</td>
-                    <td>${adoption.email}</td>
                     <td>${adoption.phone}</td>
                     <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
                     <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
@@ -1092,6 +1091,9 @@
         try {
           const response = await authFetch("/api/adoptions");
           const res = await response.json();
+          if (!response.ok || !res.success) {
+            throw new Error(res.message || "Failed to load adoption inquiries");
+          }
           const adoptions = res.data || [];
           _adoptionsCache = adoptions;
 
@@ -1108,7 +1110,6 @@
                   <th>ID</th>
                   <th>Pet ID</th>
                   <th>Adopter Name</th>
-                  <th>Email</th>
                   <th>Phone</th>
                   <th>Status</th>
                   <th>Message</th>
@@ -1124,7 +1125,6 @@
                     <td>${index + 1}</td>
                     <td>${adoption.petId}</td>
                     <td>${adoption.adopterName}</td>
-                    <td>${adoption.email}</td>
                     <td>${adoption.phone}</td>
                     <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
                     <td>
@@ -1153,6 +1153,9 @@
         try {
           const response = await authFetch("/api/bookings");
           const res = await response.json();
+          if (!response.ok || !res.success) {
+            throw new Error(res.message || "Failed to load bookings");
+          }
           const bookings = res.data || [];
 
           if (!bookings || bookings.length === 0) {
@@ -1256,6 +1259,9 @@
         try {
           const response = await authFetch("/api/contact");
           const res = await response.json();
+          if (!response.ok || !res.success) {
+            throw new Error(res.message || "Failed to load contact messages");
+          }
           const messages = res.data || [];
 
           if (!messages || messages.length === 0) {

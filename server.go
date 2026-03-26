@@ -1688,6 +1688,27 @@ func createBookingHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 	syncBookingToDB(booking)
 
+	if smtpUser != "" {
+		go func(b ServiceBooking) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Service Booking Inquiry",
+				Body: fmt.Sprintf(
+					"New booking inquiry received.\n\nOwner: %s\nEmail: %s\nPhone: %s\nService: %s\nDate: %s\nTime: %s\nNotes: %s\nID: %s",
+					b.OwnerName,
+					b.Email,
+					b.Phone,
+					b.ServiceID,
+					b.Date,
+					b.Time,
+					b.Notes,
+					b.ID,
+				),
+				JobType: "booking-admin",
+			}
+		}(booking)
+	}
+
 	log.Printf("[INFO] Booking created: ID=%s, Service=%s, Owner=%s", booking.ID, booking.ServiceID, booking.OwnerName)
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
 		"success": true,
@@ -1729,6 +1750,24 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 			JobType: "contact",
 		}
 	}()
+
+	if smtpUser != "" {
+		go func(c ContactForm) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Contact Enquiry",
+				Body: fmt.Sprintf(
+					"New contact enquiry received.\n\nName: %s\nEmail: %s\nPurpose: %s\nMessage: %s\nSent At: %s",
+					c.Name,
+					c.Email,
+					c.Purpose,
+					c.Message,
+					c.SentAt.Format(time.RFC1123),
+				),
+				JobType: "contact-admin",
+			}
+		}(contact)
+	}
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
@@ -1968,6 +2007,25 @@ func createAdoptionInquiryHandler(w http.ResponseWriter, r *http.Request) {
 			JobType: "adoption",
 		}
 	}()
+
+	if smtpUser != "" {
+		go func(i AdoptionInquiry) {
+			notificationCh <- NotificationJob{
+				To:      smtpUser,
+				Subject: "New Adoption Enquiry",
+				Body: fmt.Sprintf(
+					"New adoption enquiry received.\n\nPet ID: %s\nAdopter: %s\nEmail: %s\nPhone: %s\nMessage: %s\nInquiry ID: %s",
+					i.PetID,
+					i.AdopterName,
+					i.Email,
+					i.Phone,
+					i.Message,
+					i.ID,
+				),
+				JobType: "adoption-admin",
+			}
+		}(inquiry)
+	}
 
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
 		"success": true,
