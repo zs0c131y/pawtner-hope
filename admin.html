@@ -230,6 +230,22 @@
         background: #4b5563;
       }
 
+      .btn-refresh {
+        padding: 0.45rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid #e3d8cc;
+        background: #fff;
+        color: #6a5944;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .btn-refresh:hover {
+        background: #f7f3ef;
+      }
+
       .btn-logout {
         background: rgba(44, 36, 22, 0.24);
         border: 1px solid rgba(255, 255, 255, 0.35);
@@ -526,9 +542,14 @@
 
       <!-- Adoptions Section -->
       <section id="adoptions" class="section">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold mb-2">Adoption Inquiries</h1>
-          <p class="text-gray-600">Manage adoption requests</p>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Adoption Inquiries</h1>
+            <p class="text-gray-600">Manage adoption requests</p>
+          </div>
+          <button class="btn-refresh" onclick="refreshSection('adoptions')">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
         </div>
 
         <div class="table-container">
@@ -538,9 +559,14 @@
 
       <!-- Bookings Section -->
       <section id="bookings" class="section">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold mb-2">Service Bookings</h1>
-          <p class="text-gray-600">Manage service appointments</p>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Service Bookings</h1>
+            <p class="text-gray-600">Manage service appointments</p>
+          </div>
+          <button class="btn-refresh" onclick="refreshSection('bookings')">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
         </div>
 
         <div class="table-container">
@@ -550,9 +576,14 @@
 
       <!-- Donations Section -->
       <section id="donations" class="section">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold mb-2">Donations</h1>
-          <p class="text-gray-600">View donation history</p>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Donations</h1>
+            <p class="text-gray-600">View donation history</p>
+          </div>
+          <button class="btn-refresh" onclick="refreshSection('donations')">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
         </div>
 
         <div class="table-container">
@@ -562,9 +593,14 @@
 
       <!-- Messages Section -->
       <section id="messages" class="section">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold mb-2">Contact Messages</h1>
-          <p class="text-gray-600">Messages from visitors</p>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Contact Messages</h1>
+            <p class="text-gray-600">Messages from visitors</p>
+          </div>
+          <button class="btn-refresh" onclick="refreshSection('messages')">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
         </div>
 
         <div class="table-container">
@@ -834,7 +870,11 @@
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
-        return fetch(url, Object.assign({}, options, { headers }));
+        return fetch(url, Object.assign({ cache: "no-store" }, options, { headers }));
+      }
+
+      async function refreshSection(section) {
+        await loadSectionData(section);
       }
 
       async function enforceAdminAccess() {
@@ -1208,6 +1248,9 @@
         try {
           const response = await authFetch("/api/donations");
           const res = await response.json();
+          if (!response.ok || !res.success) {
+            throw new Error(res.message || "Failed to load donations");
+          }
           const donations = res.data || [];
 
           if (!donations || donations.length === 0) {
@@ -1252,6 +1295,8 @@
           `;
         } catch (error) {
           console.error("Error loading donations:", error);
+          document.getElementById("donations-table").innerHTML =
+            '<p class="text-red-500 text-center py-8">Failed to load donations</p>';
         }
       }
 
