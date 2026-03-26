@@ -870,7 +870,10 @@
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
-        return fetch(url, Object.assign({ cache: "no-store" }, options, { headers }));
+        return fetch(
+          url,
+          Object.assign({ cache: "no-store" }, options, { headers }),
+        );
       }
 
       async function refreshSection(section) {
