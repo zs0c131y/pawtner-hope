@@ -777,6 +777,50 @@
       </div>
     </div>
 
+    <!-- Contact Message Modal -->
+    <div class="modal-overlay" id="message-modal-overlay">
+      <div class="modal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold">Contact Message</h2>
+          <button
+            onclick="closeMessageModal()"
+            class="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-2" id="message-modal-id"></p>
+        <div class="inquiry-meta" id="message-modal-meta"></div>
+        <h3 class="font-semibold mb-2 mt-4">Message</h3>
+        <div class="inquiry-message mb-5" id="message-modal-body">-</div>
+        <div class="flex justify-end">
+          <button type="button" class="btn btn-secondary" onclick="closeMessageModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Booking Review Modal -->
+    <div class="modal-overlay" id="booking-modal-overlay">
+      <div class="modal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold">Service Booking</h2>
+          <button
+            onclick="closeBookingModal()"
+            class="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-2" id="booking-modal-id"></p>
+        <div class="inquiry-meta" id="booking-modal-meta"></div>
+        <h3 class="font-semibold mb-2 mt-4">Notes</h3>
+        <div class="inquiry-message mb-5" id="booking-modal-notes">-</div>
+        <div class="flex justify-end">
+          <button type="button" class="btn btn-secondary" onclick="closeBookingModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Adoption Inquiry Modal -->
     <div class="modal-overlay" id="inquiry-modal-overlay">
       <div class="modal">
@@ -822,6 +866,8 @@
       // ── Pet CRUD helpers ─────────────────────────────────────────────────────
       let petModalMode = "add"; // 'add' | 'edit'
       let _adoptionsCache = [];
+      let _bookingsCache = [];
+      let _messagesCache = [];
       let _activeInquiryId = "";
       let _statusUpdateInFlight = false;
 
@@ -1307,6 +1353,7 @@
             return true;
           }
 
+          _bookingsCache = bookings;
           document.getElementById("bookings-table").innerHTML = `
             <table>
               <thead>
@@ -1315,9 +1362,9 @@
                   <th>Service ID</th>
                   <th>Pet Name</th>
                   <th>Owner</th>
-                  <th>Email</th>
                   <th>Date</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -1329,9 +1376,13 @@
                     <td>${b.serviceId}</td>
                     <td>${b.petName || "-"}</td>
                     <td>${b.ownerName}</td>
-                    <td>${b.email}</td>
                     <td>${b.date || new Date(b.bookedAt).toLocaleDateString()}</td>
                     <td><span class="badge badge-${b.status === "Pending" ? "warning" : "success"}">${b.status}</span></td>
+                    <td>
+                      <button class="btn btn-secondary action-btn" onclick="openBookingModal('${b.id}')">
+                        <i class="fas fa-eye"></i> Review
+                      </button>
+                    </td>
                   </tr>
                 `,
                   )
@@ -1422,16 +1473,16 @@
             return true;
           }
 
+          _messagesCache = messages;
           document.getElementById("messages-table").innerHTML = `
             <table>
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
-                  <th>Email</th>
                   <th>Purpose</th>
-                  <th>Message</th>
                   <th>Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -1441,10 +1492,13 @@
                   <tr>
                     <td>${index + 1}</td>
                     <td>${msg.name || "-"}</td>
-                    <td>${msg.email || "-"}</td>
                     <td>${msg.purpose || "-"}</td>
-                    <td>${(msg.message || "").substring(0, 80)}${msg.message && msg.message.length > 80 ? "..." : ""}</td>
                     <td>${msg.sentAt ? new Date(msg.sentAt).toLocaleDateString() : "-"}</td>
+                    <td>
+                      <button class="btn btn-secondary action-btn" onclick="openMessageModal(${index})">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                    </td>
                   </tr>
                 `,
                   )
@@ -1460,6 +1514,56 @@
           return false;
         }
       }
+
+      function closeMessageModal() {
+        document.getElementById("message-modal-overlay").classList.remove("open");
+      }
+
+      function openMessageModal(index) {
+        const msg = _messagesCache[index];
+        if (!msg) return;
+
+        document.getElementById("message-modal-id").textContent = `Message #${index + 1}`;
+        document.getElementById("message-modal-meta").innerHTML = `
+          <div class="inquiry-meta-item"><span class="label">Name</span><span class="value">${msg.name || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Email</span><span class="value">${msg.email || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Purpose</span><span class="value">${msg.purpose || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Sent</span><span class="value">${msg.sentAt ? new Date(msg.sentAt).toLocaleString() : "-"}</span></div>
+        `;
+        document.getElementById("message-modal-body").textContent = msg.message || "No message content.";
+        document.getElementById("message-modal-overlay").classList.add("open");
+      }
+
+      document.getElementById("message-modal-overlay").addEventListener("click", function (e) {
+        if (e.target === this) closeMessageModal();
+      });
+
+      function closeBookingModal() {
+        document.getElementById("booking-modal-overlay").classList.remove("open");
+      }
+
+      function openBookingModal(bookingID) {
+        const b = _bookingsCache.find((x) => x.id === bookingID);
+        if (!b) return;
+
+        document.getElementById("booking-modal-id").textContent = `Booking ${b.id}`;
+        document.getElementById("booking-modal-meta").innerHTML = `
+          <div class="inquiry-meta-item"><span class="label">Service</span><span class="value">${b.serviceId}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Status</span><span class="value">${b.status}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Owner</span><span class="value">${b.ownerName}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Email</span><span class="value">${b.email}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Phone</span><span class="value">${b.phone || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Pet Name</span><span class="value">${b.petName || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Date</span><span class="value">${b.date || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Time</span><span class="value">${b.time || "-"}</span></div>
+        `;
+        document.getElementById("booking-modal-notes").textContent = b.notes || "No notes provided.";
+        document.getElementById("booking-modal-overlay").classList.add("open");
+      }
+
+      document.getElementById("booking-modal-overlay").addEventListener("click", function (e) {
+        if (e.target === this) closeBookingModal();
+      });
 
       function closeInquiryModal() {
         _activeInquiryId = "";
