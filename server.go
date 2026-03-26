@@ -1626,11 +1626,29 @@ func getServicesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBookingsHandler(w http.ResponseWriter, _ *http.Request) {
+	if coll := bookingsColl(); coll != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cur, err := coll.Find(ctx, bson.D{})
+		if err == nil {
+			var result []ServiceBooking
+			if err2 := cur.All(ctx, &result); err2 == nil {
+				if result == nil {
+					result = []ServiceBooking{}
+				}
+				respondJSON(w, http.StatusOK, map[string]interface{}{
+					"success": true,
+					"count":   len(result),
+					"data":    result,
+				})
+				return
+			}
+		}
+	}
 	mu.Lock()
 	result := make([]ServiceBooking, len(bookings))
 	copy(result, bookings)
 	mu.Unlock()
-
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"count":   len(result),
@@ -1800,11 +1818,29 @@ func submitContactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getContactMessagesHandler(w http.ResponseWriter, _ *http.Request) {
+	if coll := contactsColl(); coll != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cur, err := coll.Find(ctx, bson.D{})
+		if err == nil {
+			var result []ContactForm
+			if err2 := cur.All(ctx, &result); err2 == nil {
+				if result == nil {
+					result = []ContactForm{}
+				}
+				respondJSON(w, http.StatusOK, map[string]interface{}{
+					"success": true,
+					"count":   len(result),
+					"data":    result,
+				})
+				return
+			}
+		}
+	}
 	mu.Lock()
 	result := make([]ContactForm, len(contactMessages))
 	copy(result, contactMessages)
 	mu.Unlock()
-
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"count":   len(result),
@@ -2066,11 +2102,29 @@ func createAdoptionInquiryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAdoptionInquiriesHandler(w http.ResponseWriter, _ *http.Request) {
+	if coll := inquiriesColl(); coll != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cur, err := coll.Find(ctx, bson.D{})
+		if err == nil {
+			var result []AdoptionInquiry
+			if err2 := cur.All(ctx, &result); err2 == nil {
+				if result == nil {
+					result = []AdoptionInquiry{}
+				}
+				respondJSON(w, http.StatusOK, map[string]interface{}{
+					"success": true,
+					"count":   len(result),
+					"data":    result,
+				})
+				return
+			}
+		}
+	}
 	mu.Lock()
 	result := make([]AdoptionInquiry, len(inquiries))
 	copy(result, inquiries)
 	mu.Unlock()
-
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"count":   len(result),
@@ -2204,11 +2258,29 @@ func createDonationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getDonationsHandler(w http.ResponseWriter, _ *http.Request) {
+	if coll := donationsColl(); coll != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cur, err := coll.Find(ctx, bson.D{})
+		if err == nil {
+			var result []Donation
+			if err2 := cur.All(ctx, &result); err2 == nil {
+				if result == nil {
+					result = []Donation{}
+				}
+				respondJSON(w, http.StatusOK, map[string]interface{}{
+					"success": true,
+					"count":   len(result),
+					"data":    result,
+				})
+				return
+			}
+		}
+	}
 	mu.Lock()
 	result := make([]Donation, len(donations))
 	copy(result, donations)
 	mu.Unlock()
-
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"count":   len(result),
