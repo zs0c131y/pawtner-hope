@@ -45,6 +45,7 @@ type Pet struct {
 	Name         string            `json:"name"`
 	Species      string            `json:"species"`
 	Breed        string            `json:"breed"`
+	ImageURL     string            `json:"imageUrl" bson:"imageUrl,omitempty"`
 	Age          int               `json:"age"`
 	Gender       string            `json:"gender"`
 	Description  string            `json:"description"`
@@ -553,11 +554,9 @@ func Login(email, password string) (*AuthToken, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	mu.Lock()
-	defer mu.Unlock()
-
-	user, exists := usersByEmail[email]
-	if !exists || !checkPassword(user.Password, password) {
+	email = strings.TrimSpace(strings.ToLower(email))
+	user, err := getUserByEmailLive(email)
+	if err != nil || !checkPassword(user.Password, password) {
 		return nil, ErrInvalidCredentials
 	}
 
@@ -570,7 +569,10 @@ func Login(email, password string) (*AuthToken, error) {
 		Username:  user.Username,
 		Email:     user.Email,
 	}
+
+	mu.Lock()
 	tokenStore[token.Token] = &token
+	mu.Unlock()
 	return &token, nil
 }
 
@@ -580,24 +582,110 @@ func ValidateToken(tokenStr string) (*User, error) {
 	}
 
 	mu.Lock()
-	defer mu.Unlock()
-
 	token, exists := tokenStore[tokenStr]
 	if !exists {
+		mu.Unlock()
 		return nil, ErrInvalidCredentials
 	}
 
 	if time.Now().After(token.ExpiresAt) {
 		delete(tokenStore, tokenStr)
+		mu.Unlock()
 		return nil, ErrTokenExpired
 	}
+	userID := token.UserID
+	mu.Unlock()
 
+	user, err := getUserByIDLive(userID)
+	if err != nil {
+		return nil, ErrInvalidCredentials
+	}
+
+	mu.Lock()
+	if latestToken, ok := tokenStore[tokenStr]; ok {
+		latestToken.Role = user.Role
+		latestToken.IsAdmin = user.IsAdmin
+		latestToken.Username = user.Username
+		latestToken.Email = user.Email
+	}
+	mu.Unlock()
+
+	return user, nil
+}
+
+func getUserByEmailLive(email string) (*User, error) {
+	email = strings.TrimSpace(strings.ToLower(email))
+
+	if usersColl() != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		var user User
+		err := usersColl().FindOne(ctx, bson.M{"email": email}).Decode(&user)
+		if err == nil {
+			return &user, nil
+		}
+		if !errors.Is(err, mongo.ErrNoDocuments) {
+			log.Printf("[WARN] Live user lookup by email failed for %s: %v", email, err)
+		}
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	user, exists := usersByEmail[email]
+	if !exists {
+		return nil, ErrInvalidCredentials
+	}
+	userCopy := *user
+	return &userCopy, nil
+}
+
+func getUserByIDLive(userID string) (*User, error) {
+	if usersColl() != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		var user User
+		err := usersColl().FindOne(ctx, bson.M{"id": userID}).Decode(&user)
+		if err == nil {
+			return &user, nil
+		}
+		if !errors.Is(err, mongo.ErrNoDocuments) {
+			log.Printf("[WARN] Live user lookup by id failed for %s: %v", userID, err)
+		}
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
 	for i := range users {
-		if users[i].ID == token.UserID {
-			return &users[i], nil
+		if users[i].ID == userID {
+			userCopy := users[i]
+			return &userCopy, nil
 		}
 	}
 	return nil, ErrInvalidCredentials
+}
+
+func requireAdmin(w http.ResponseWriter, r *http.Request) (*User, bool) {
+	authHeader := r.Header.Get("Authorization")
+	tokenStr := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
+	if tokenStr == "" {
+		respondError(w, http.StatusUnauthorized, "Missing token")
+		return nil, false
+	}
+
+	user, err := ValidateToken(tokenStr)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, "Invalid or expired token")
+		return nil, false
+	}
+
+	if !user.IsAdmin && strings.ToLower(user.Role) != "admin" {
+		respondError(w, http.StatusForbidden, "Admin access required")
+		return nil, false
+	}
+
+	return user, true
 }
 
 func UpdatePet(id string, update Pet) (*Pet, error) {
@@ -617,6 +705,9 @@ func UpdatePet(id string, update Pet) (*Pet, error) {
 	}
 	if update.Breed != "" {
 		pet.Breed = update.Breed
+	}
+	if strings.TrimSpace(update.ImageURL) != "" {
+		pet.ImageURL = strings.TrimSpace(update.ImageURL)
 	}
 	if update.Age > 0 {
 		pet.Age = update.Age
@@ -1336,6 +1427,7 @@ func addPetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	newPet.ImageURL = strings.TrimSpace(newPet.ImageURL)
 	newPet.ID = fmt.Sprintf("pet-%03d", len(pets)+1)
 	newPet.CreatedAt = time.Now()
 
@@ -1786,6 +1878,50 @@ func getAdoptionInquiriesHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
+func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/adoptions/")
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	if len(parts) != 2 || parts[1] != "status" || parts[0] == "" {
+		respondError(w, http.StatusBadRequest, "Invalid adoption status endpoint")
+		return
+	}
+	inquiryID := parts[0]
+
+	var req struct {
+		Status string `json:"status"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+	defer r.Body.Close()
+
+	req.Status = strings.TrimSpace(req.Status)
+	if req.Status != "Pending" && req.Status != "Approved" && req.Status != "Rejected" {
+		respondError(w, http.StatusBadRequest, "Invalid status")
+		return
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	for i := range inquiries {
+		if inquiries[i].ID == inquiryID {
+			inquiries[i].Status = req.Status
+			updated := inquiries[i]
+			syncInquiryToDB(updated)
+			respondJSON(w, http.StatusOK, map[string]interface{}{
+				"success": true,
+				"message": "Inquiry status updated",
+				"data":    updated,
+			})
+			return
+		}
+	}
+
+	respondError(w, http.StatusNotFound, "Adoption inquiry not found")
+}
+
 func createDonationHandler(w http.ResponseWriter, r *http.Request) {
 	var donation Donation
 
@@ -1922,6 +2058,9 @@ func main() {
 		case "GET":
 			getPetsHandler(w, r)
 		case "POST":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			addPetHandler(w, r)
 		default:
 			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -1933,8 +2072,14 @@ func main() {
 		case "GET":
 			getPetByIDHandler(w, r)
 		case "PUT":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			updatePetHandler(w, r)
 		case "DELETE":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			deletePetHandler(w, r)
 		default:
 			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -1945,6 +2090,9 @@ func main() {
 	http.HandleFunc("/api/bookings", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			getBookingsHandler(w, r)
 		case "POST":
 			createBookingHandler(w, r)
@@ -1990,6 +2138,9 @@ func main() {
 	http.HandleFunc("/api/adoptions", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			getAdoptionInquiriesHandler(w, r)
 		case "POST":
 			createAdoptionInquiryHandler(w, r)
@@ -1998,9 +2149,23 @@ func main() {
 		}
 	})))
 
+	http.HandleFunc("/api/adoptions/", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "PUT" {
+			respondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+			return
+		}
+		if _, ok := requireAdmin(w, r); !ok {
+			return
+		}
+		updateAdoptionInquiryStatusHandler(w, r)
+	})))
+
 	http.HandleFunc("/api/donations", recoverPanic(enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
+			if _, ok := requireAdmin(w, r); !ok {
+				return
+			}
 			getDonationsHandler(w, r)
 		case "POST":
 			createDonationHandler(w, r)

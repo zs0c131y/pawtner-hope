@@ -30,6 +30,9 @@
     "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=500&q=80";
 
   window.getPetImageUrl = function (pet) {
+    if (pet && typeof pet.imageUrl === "string" && pet.imageUrl.trim() !== "") {
+      return pet.imageUrl.trim();
+    }
     const species = String((pet && pet.species) || "other").toLowerCase();
     const pool = petImages[species] || petImages.other;
     const numericPart =

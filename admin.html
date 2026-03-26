@@ -229,6 +229,100 @@
         background: #4b5563;
       }
 
+      .btn-logout {
+        background: rgba(44, 36, 22, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+      }
+
+      .btn-logout:hover {
+        background: rgba(44, 36, 22, 0.4);
+      }
+
+      .table-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: nowrap;
+      }
+
+      .action-btn {
+        padding: 0.38rem 0.72rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+      }
+
+      .icon-btn {
+        width: 2.15rem;
+        height: 2.15rem;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+
+      .msg-btn {
+        background: #f2f0ed;
+        color: #5b4a36;
+        border: 1px solid #e1d8cf;
+        padding: 0.32rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+      }
+
+      .msg-btn:hover {
+        background: #e8dfd6;
+      }
+
+      .inquiry-message {
+        background: #f8f6f3;
+        border: 1px solid #ece5dd;
+        border-radius: 10px;
+        padding: 0.9rem;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .inquiry-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin: 0.8rem 0 1rem;
+      }
+
+      .inquiry-meta-item {
+        background: #faf8f5;
+        border: 1px solid #f0e7dc;
+        border-radius: 10px;
+        padding: 0.65rem 0.75rem;
+      }
+
+      .inquiry-meta-item .label {
+        display: block;
+        font-size: 0.72rem;
+        color: #7b6c59;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .inquiry-meta-item .value {
+        display: block;
+        margin-top: 0.15rem;
+        font-size: 0.9rem;
+        color: #2c2416;
+      }
+
+      @media (max-width: 640px) {
+        .inquiry-meta {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .section {
         display: none;
       }
@@ -334,7 +428,7 @@
       <div class="px-8 mt-auto absolute bottom-8">
         <button
           onclick="logout()"
-          class="btn btn-secondary w-full flex items-center justify-center gap-2"
+          class="btn btn-logout w-full flex items-center justify-center gap-2"
         >
           <i class="fas fa-sign-out-alt"></i>
           Logout
@@ -560,6 +654,14 @@
               placeholder="Brief description of the pet…"
             ></textarea>
           </div>
+          <div class="form-group">
+            <label>Image URL (optional)</label>
+            <input
+              type="url"
+              id="pet-image-url"
+              placeholder="https://example.com/pet-photo.jpg"
+            />
+          </div>
           <div class="form-group flex items-center gap-3">
             <input
               type="checkbox"
@@ -584,9 +686,41 @@
         </form>
       </div>
     </div>
+
+    <!-- Adoption Inquiry Modal -->
+    <div class="modal-overlay" id="inquiry-modal-overlay">
+      <div class="modal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold">Adoption Inquiry</h2>
+          <button
+            onclick="closeInquiryModal()"
+            class="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-2" id="inquiry-modal-seq-id"></p>
+        <div class="inquiry-meta" id="inquiry-modal-meta"></div>
+        <h3 class="font-semibold mb-2">Message</h3>
+        <div class="inquiry-message mb-5" id="inquiry-modal-message">-</div>
+        <div class="flex flex-wrap gap-2 justify-end">
+          <button type="button" class="btn btn-secondary" onclick="setInquiryStatus('Pending')">
+            Mark Pending
+          </button>
+          <button type="button" class="btn btn-danger" onclick="setInquiryStatus('Rejected')">
+            Reject
+          </button>
+          <button type="button" class="btn btn-primary" onclick="setInquiryStatus('Approved')">
+            Approve
+          </button>
+        </div>
+      </div>
+    </div>
     <script>
       // ── Pet CRUD helpers ─────────────────────────────────────────────────────
       let petModalMode = "add"; // 'add' | 'edit'
+      let _adoptionsCache = [];
+      let _activeInquiryId = "";
 
       function openPetModal(pet) {
         petModalMode = pet ? "edit" : "add";
@@ -602,6 +736,9 @@
         document.getElementById("pet-status").value = pet
           ? pet.status
           : "Available";
+        document.getElementById("pet-image-url").value = pet
+          ? pet.imageUrl || ""
+          : "";
         document.getElementById("pet-description").value = pet
           ? pet.description
           : "";
@@ -625,6 +762,7 @@
           age: parseInt(document.getElementById("pet-age").value, 10),
           gender: document.getElementById("pet-gender").value,
           status: document.getElementById("pet-status").value,
+          imageUrl: document.getElementById("pet-image-url").value.trim(),
           description: document.getElementById("pet-description").value,
           isVaccinated: document.getElementById("pet-vaccinated").checked,
         };
@@ -636,7 +774,7 @@
         try {
           const url = id ? `/api/pets/${id}` : "/api/pets";
           const method = id ? "PUT" : "POST";
-          const res = await fetch(url, {
+          const res = await authFetch(url, {
             method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
@@ -656,7 +794,7 @@
       async function deletePet(id, name) {
         if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
         try {
-          const res = await fetch(`/api/pets/${id}`, { method: "DELETE" });
+          const res = await authFetch(`/api/pets/${id}`, { method: "DELETE" });
           const data = await res.json();
           if (!data.success) throw new Error(data.message || "Failed");
           loadPets();
@@ -672,12 +810,49 @@
           if (e.target === this) closePetModal();
         });
 
-      // Check authentication and admin role
-      const authToken = localStorage.getItem("authToken");
-      if (!authToken) {
-        window.location.href = "auth.html";
-      } else if (localStorage.getItem("isAdmin") !== "true") {
-        window.location.href = "dashboard.html";
+      function getAuthToken() {
+        return localStorage.getItem("authToken") || "";
+      }
+
+      function authFetch(url, options = {}) {
+        const token = getAuthToken();
+        const headers = Object.assign({}, options.headers || {});
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        return fetch(url, Object.assign({}, options, { headers }));
+      }
+
+      async function enforceAdminAccess() {
+        const token = getAuthToken();
+        if (!token) {
+          window.location.href = "auth.html";
+          return false;
+        }
+
+        try {
+          const res = await authFetch("/api/auth/me");
+          const payload = await res.json();
+          if (!res.ok || !payload.success || !payload.data) {
+            throw new Error(payload.message || "Unauthorized");
+          }
+
+          const isAdmin = payload.data.isadmin === true;
+          localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+          localStorage.setItem("userRole", payload.data.role || "user");
+
+          if (!isAdmin) {
+            window.location.href = "dashboard.html";
+            return false;
+          }
+
+          return true;
+        } catch (_) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("isAdmin");
+          window.location.href = "auth.html";
+          return false;
+        }
       }
 
       // Mobile menu toggle
@@ -734,7 +909,7 @@
       // Load statistics
       async function loadStatistics() {
         try {
-          const response = await fetch("/api/statistics");
+          const response = await authFetch("/api/statistics");
           const res = await response.json();
           const stats = res.data || {};
 
@@ -776,7 +951,7 @@
       // Load recent adoptions
       async function loadRecentAdoptions() {
         try {
-          const response = await fetch("/api/adoptions");
+          const response = await authFetch("/api/adoptions");
           const res = await response.json();
           const adoptions = res.data || [];
 
@@ -830,7 +1005,7 @@
       // Load pets
       async function loadPets() {
         try {
-          const response = await fetch("/api/pets");
+          const response = await authFetch("/api/pets");
           const res = await response.json();
           const pets = res.data || [];
           _petsCache = pets;
@@ -868,12 +1043,14 @@
                     <td><span class="badge badge-${pet.status === "Available" ? "success" : pet.status === "Adopted" ? "info" : "warning"}">${pet.status}</span></td>
                     <td>${pet.isVaccinated ? '<span style="color:#166534;">✓ Yes</span>' : '<span style="color:#92400e;">✗ No</span>'}</td>
                     <td>
-                      <button onclick="editPetById('${pet.id}')" class="btn btn-primary" style="padding:0.3rem 0.7rem;font-size:0.8rem;margin-right:0.4rem;">
-                        <i class="fas fa-edit"></i> Edit
-                      </button>
-                      <button onclick="deletePet('${pet.id}','${pet.name.replace(/'/g, "\\\'")}')" class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.8rem;">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                      <div class="table-actions">
+                        <button onclick="editPetById('${pet.id}')" class="btn btn-primary action-btn">
+                          <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="deletePet('${pet.id}','${pet.name.replace(/'/g, "\\\'")}')" class="btn btn-danger icon-btn" aria-label="Delete ${pet.name}">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 `,
@@ -897,9 +1074,10 @@
       // Load adoptions
       async function loadAdoptions() {
         try {
-          const response = await fetch("/api/adoptions");
+          const response = await authFetch("/api/adoptions");
           const res = await response.json();
           const adoptions = res.data || [];
+          _adoptionsCache = adoptions;
 
           if (!adoptions || adoptions.length === 0) {
             document.getElementById("adoptions-table").innerHTML =
@@ -918,21 +1096,29 @@
                   <th>Phone</th>
                   <th>Status</th>
                   <th>Message</th>
+                  <th>Actions</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody>
                 ${adoptions
                   .map(
-                    (adoption) => `
+                    (adoption, index) => `
                   <tr>
-                    <td>${adoption.id}</td>
+                    <td>${index + 1}</td>
                     <td>${adoption.petId}</td>
                     <td>${adoption.adopterName}</td>
                     <td>${adoption.email}</td>
                     <td>${adoption.phone}</td>
                     <td><span class="badge badge-${adoption.status === "Pending" ? "warning" : adoption.status === "Approved" ? "success" : "info"}">${adoption.status}</span></td>
-                    <td>${(adoption.message || "").substring(0, 50)}${adoption.message && adoption.message.length > 50 ? "..." : ""}</td>
+                    <td>
+                      ${adoption.message ? `<button class="msg-btn" onclick="openInquiryModal('${adoption.id}')">View message</button>` : '<span class="text-gray-400">-</span>'}
+                    </td>
+                    <td>
+                      <button class="btn btn-secondary action-btn" onclick="openInquiryModal('${adoption.id}')">
+                        <i class="fas fa-eye"></i> Review
+                      </button>
+                    </td>
                     <td>${new Date(adoption.createdAt).toLocaleDateString()}</td>
                   </tr>
                 `,
@@ -949,7 +1135,7 @@
       // Load bookings
       async function loadBookings() {
         try {
-          const response = await fetch("/api/bookings");
+          const response = await authFetch("/api/bookings");
           const res = await response.json();
           const bookings = res.data || [];
 
@@ -1001,7 +1187,7 @@
       // Load donations
       async function loadDonations() {
         try {
-          const response = await fetch("/api/donations");
+          const response = await authFetch("/api/donations");
           const res = await response.json();
           const donations = res.data || [];
 
@@ -1050,9 +1236,65 @@
         }
       }
 
+      function closeInquiryModal() {
+        _activeInquiryId = "";
+        document.getElementById("inquiry-modal-overlay").classList.remove("open");
+      }
+
+      function openInquiryModal(inquiryID) {
+        const inquiry = _adoptionsCache.find((a) => a.id === inquiryID);
+        if (!inquiry) return;
+
+        _activeInquiryId = inquiry.id;
+        const sequenceNumber = _adoptionsCache.findIndex((a) => a.id === inquiry.id) + 1;
+
+        document.getElementById("inquiry-modal-seq-id").textContent = `Inquiry ID ${sequenceNumber}`;
+        document.getElementById("inquiry-modal-meta").innerHTML = `
+          <div class="inquiry-meta-item"><span class="label">Pet ID</span><span class="value">${inquiry.petId}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Status</span><span class="value">${inquiry.status}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Adopter</span><span class="value">${inquiry.adopterName}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Email</span><span class="value">${inquiry.email}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Phone</span><span class="value">${inquiry.phone || "-"}</span></div>
+          <div class="inquiry-meta-item"><span class="label">Submitted</span><span class="value">${new Date(inquiry.createdAt).toLocaleString()}</span></div>
+        `;
+        document.getElementById("inquiry-modal-message").textContent = inquiry.message || "No message provided.";
+        document.getElementById("inquiry-modal-overlay").classList.add("open");
+      }
+
+      async function setInquiryStatus(status) {
+        if (!_activeInquiryId) return;
+        try {
+          const response = await authFetch(`/api/adoptions/${_activeInquiryId}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status }),
+          });
+          const res = await response.json();
+          if (!response.ok || !res.success) {
+            throw new Error(res.message || "Failed to update inquiry status");
+          }
+          closeInquiryModal();
+          await loadAdoptions();
+          await loadRecentAdoptions();
+          await loadStatistics();
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      }
+
+      document
+        .getElementById("inquiry-modal-overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeInquiryModal();
+        });
+
       // Initialize
-      loadStatistics();
-      loadRecentAdoptions();
+      (async function initializeAdminDashboard() {
+        const allowed = await enforceAdminAccess();
+        if (!allowed) return;
+        loadStatistics();
+        loadRecentAdoptions();
+      })();
     </script>
   </body>
 </html>

@@ -891,7 +891,9 @@
           const maxTime = 21 * 60; // 21:00
 
           if (timeInMinutes < minTime || timeInMinutes > maxTime) {
-            showFormError("Please select a time between 09:00 AM and 09:00 PM.");
+            showFormError(
+              "Please select a time between 09:00 AM and 09:00 PM.",
+            );
             e.target.value = "";
           } else {
             clearFormError();
@@ -917,7 +919,9 @@
           const [hours, minutes] = selectedTime.split(":").map(Number);
           const timeInMinutes = hours * 60 + minutes;
           if (timeInMinutes < 9 * 60 || timeInMinutes > 21 * 60) {
-            showFormError("Please select a time between 09:00 AM and 09:00 PM.");
+            showFormError(
+              "Please select a time between 09:00 AM and 09:00 PM.",
+            );
             return;
           }
         }
