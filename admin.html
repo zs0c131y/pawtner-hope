@@ -704,13 +704,25 @@
         <h3 class="font-semibold mb-2">Message</h3>
         <div class="inquiry-message mb-5" id="inquiry-modal-message">-</div>
         <div class="flex flex-wrap gap-2 justify-end">
-          <button type="button" class="btn btn-secondary" onclick="setInquiryStatus('Pending')">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="setInquiryStatus('Pending')"
+          >
             Mark Pending
           </button>
-          <button type="button" class="btn btn-danger" onclick="setInquiryStatus('Rejected')">
+          <button
+            type="button"
+            class="btn btn-danger"
+            onclick="setInquiryStatus('Rejected')"
+          >
             Reject
           </button>
-          <button type="button" class="btn btn-primary" onclick="setInquiryStatus('Approved')">
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="setInquiryStatus('Approved')"
+          >
             Approve
           </button>
         </div>
@@ -1238,7 +1250,9 @@
 
       function closeInquiryModal() {
         _activeInquiryId = "";
-        document.getElementById("inquiry-modal-overlay").classList.remove("open");
+        document
+          .getElementById("inquiry-modal-overlay")
+          .classList.remove("open");
       }
 
       function openInquiryModal(inquiryID) {
@@ -1246,9 +1260,11 @@
         if (!inquiry) return;
 
         _activeInquiryId = inquiry.id;
-        const sequenceNumber = _adoptionsCache.findIndex((a) => a.id === inquiry.id) + 1;
+        const sequenceNumber =
+          _adoptionsCache.findIndex((a) => a.id === inquiry.id) + 1;
 
-        document.getElementById("inquiry-modal-seq-id").textContent = `Inquiry ID ${sequenceNumber}`;
+        document.getElementById("inquiry-modal-seq-id").textContent =
+          `Inquiry ID ${sequenceNumber}`;
         document.getElementById("inquiry-modal-meta").innerHTML = `
           <div class="inquiry-meta-item"><span class="label">Pet ID</span><span class="value">${inquiry.petId}</span></div>
           <div class="inquiry-meta-item"><span class="label">Status</span><span class="value">${inquiry.status}</span></div>
@@ -1257,18 +1273,22 @@
           <div class="inquiry-meta-item"><span class="label">Phone</span><span class="value">${inquiry.phone || "-"}</span></div>
           <div class="inquiry-meta-item"><span class="label">Submitted</span><span class="value">${new Date(inquiry.createdAt).toLocaleString()}</span></div>
         `;
-        document.getElementById("inquiry-modal-message").textContent = inquiry.message || "No message provided.";
+        document.getElementById("inquiry-modal-message").textContent =
+          inquiry.message || "No message provided.";
         document.getElementById("inquiry-modal-overlay").classList.add("open");
       }
 
       async function setInquiryStatus(status) {
         if (!_activeInquiryId) return;
         try {
-          const response = await authFetch(`/api/adoptions/${_activeInquiryId}/status`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status }),
-          });
+          const response = await authFetch(
+            `/api/adoptions/${_activeInquiryId}/status`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status }),
+            },
+          );
           const res = await response.json();
           if (!response.ok || !res.success) {
             throw new Error(res.message || "Failed to update inquiry status");
