@@ -267,7 +267,9 @@
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
         opacity: 0;
         transform: translateY(8px);
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s ease;
         pointer-events: none;
       }
 
@@ -585,7 +587,10 @@
             <h1 class="text-3xl font-bold mb-2">Adoption Inquiries</h1>
             <p class="text-gray-600">Manage adoption requests</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('adoptions', this)">
+          <button
+            class="btn-refresh"
+            onclick="refreshSection('adoptions', this)"
+          >
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -602,7 +607,10 @@
             <h1 class="text-3xl font-bold mb-2">Service Bookings</h1>
             <p class="text-gray-600">Manage service appointments</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('bookings', this)">
+          <button
+            class="btn-refresh"
+            onclick="refreshSection('bookings', this)"
+          >
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -619,7 +627,10 @@
             <h1 class="text-3xl font-bold mb-2">Donations</h1>
             <p class="text-gray-600">View donation history</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('donations', this)">
+          <button
+            class="btn-refresh"
+            onclick="refreshSection('donations', this)"
+          >
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -636,7 +647,10 @@
             <h1 class="text-3xl font-bold mb-2">Contact Messages</h1>
             <p class="text-gray-600">Messages from visitors</p>
           </div>
-          <button class="btn-refresh" onclick="refreshSection('messages', this)">
+          <button
+            class="btn-refresh"
+            onclick="refreshSection('messages', this)"
+          >
             <i class="fas fa-rotate-right"></i> Refresh
           </button>
         </div>
@@ -953,7 +967,9 @@
         setRefreshButtonLoading(button, false);
 
         if (ok) {
-          showToast(`${section.charAt(0).toUpperCase() + section.slice(1)} refreshed`);
+          showToast(
+            `${section.charAt(0).toUpperCase() + section.slice(1)} refreshed`,
+          );
         } else {
           showToast(`Failed to refresh ${section}`, "error");
         }
