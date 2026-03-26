@@ -747,6 +747,11 @@
                 </div>
 
                 <!-- Submit Button -->
+                <div
+                  id="form-error"
+                  class="hidden bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl text-center"
+                ></div>
+
                 <button type="submit" class="btn-primary w-full">
                   Submit Request
                 </button>
@@ -850,14 +855,27 @@
 
       // Date input validation
       const dateInput = document.getElementById("date");
+      const formError = document.getElementById("form-error");
       const today = new Date();
       const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
       dateInput.min = todayString;
 
+      function showFormError(message) {
+        formError.textContent = message;
+        formError.classList.remove("hidden");
+      }
+
+      function clearFormError() {
+        formError.textContent = "";
+        formError.classList.add("hidden");
+      }
+
       dateInput.addEventListener("change", (e) => {
         if (e.target.value && e.target.value < todayString) {
-          alert("Please select today or a future date.");
+          showFormError("Please select today or a future date.");
           e.target.value = "";
+        } else {
+          clearFormError();
         }
       });
 
@@ -873,8 +891,10 @@
           const maxTime = 21 * 60; // 21:00
 
           if (timeInMinutes < minTime || timeInMinutes > maxTime) {
-            alert("Please select a time between 09:00 AM and 09:00 PM");
+            showFormError("Please select a time between 09:00 AM and 09:00 PM.");
             e.target.value = "";
+          } else {
+            clearFormError();
           }
         }
       });
@@ -884,10 +904,11 @@
 
       serviceForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+        clearFormError();
 
         const selectedDate = document.getElementById("date").value;
         if (selectedDate && selectedDate < todayString) {
-          alert("Please select today or a future date.");
+          showFormError("Please select today or a future date.");
           return;
         }
 
@@ -896,7 +917,7 @@
           const [hours, minutes] = selectedTime.split(":").map(Number);
           const timeInMinutes = hours * 60 + minutes;
           if (timeInMinutes < 9 * 60 || timeInMinutes > 21 * 60) {
-            alert("Please select a time between 09:00 AM and 09:00 PM");
+            showFormError("Please select a time between 09:00 AM and 09:00 PM.");
             return;
           }
         }
@@ -923,6 +944,7 @@
           if (response.ok) {
             // Show success message
             document.getElementById("form-success").classList.remove("hidden");
+            clearFormError();
 
             // Reset form
             serviceForm.reset();
@@ -932,11 +954,11 @@
               document.getElementById("form-success").classList.add("hidden");
             }, 5000);
           } else {
-            alert("Failed to submit booking. Please try again.");
+            showFormError("Failed to submit booking. Please try again.");
           }
         } catch (error) {
           console.error("Error submitting booking:", error);
-          alert("Failed to submit booking. Please try again later.");
+          showFormError("Failed to submit booking. Please try again later.");
         }
       });
     </script>

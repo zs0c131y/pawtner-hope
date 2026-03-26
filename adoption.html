@@ -477,14 +477,26 @@
             <!-- Will be populated with selected pet info -->
           </div>
 
-          <div id="pet-details-card" class="bg-white border rounded-xl p-5 mb-4">
+          <div
+            id="pet-details-card"
+            class="bg-white border rounded-xl p-5 mb-4"
+          >
             <p id="modal-pet-description" class="text-gray-600 mb-4"></p>
             <div id="modal-pet-tags" class="flex gap-2 mb-4 flex-wrap"></div>
             <div class="grid grid-cols-2 gap-3 text-sm text-gray-700 mb-4">
-              <div><strong>Species:</strong> <span id="modal-pet-species"></span></div>
-              <div><strong>Gender:</strong> <span id="modal-pet-gender"></span></div>
-              <div><strong>Status:</strong> <span id="modal-pet-status"></span></div>
-              <div><strong>Vaccination:</strong> <span id="modal-pet-vaccinated"></span></div>
+              <div>
+                <strong>Species:</strong> <span id="modal-pet-species"></span>
+              </div>
+              <div>
+                <strong>Gender:</strong> <span id="modal-pet-gender"></span>
+              </div>
+              <div>
+                <strong>Status:</strong> <span id="modal-pet-status"></span>
+              </div>
+              <div>
+                <strong>Vaccination:</strong>
+                <span id="modal-pet-vaccinated"></span>
+              </div>
             </div>
             <button id="details-start-adoption" class="btn-primary w-full">
               Proceed With Adoption Request
@@ -577,7 +589,8 @@
             class="hidden bg-green-50 border-2 border-green-200 text-green-800 px-4 py-4 rounded-xl text-center"
           >
             <i class="fas fa-check-circle mr-2"></i>
-            Your adoption request has been submitted successfully. We review requests on a first-come, first-served (FCFS) basis.
+            Your adoption request has been submitted successfully. We review
+            requests on a first-come, first-served (FCFS) basis.
           </div>
         </div>
       </div>
@@ -862,9 +875,8 @@
           pet.gender || "-";
         document.getElementById("modal-pet-status").textContent =
           pet.status || "-";
-        document.getElementById("modal-pet-vaccinated").textContent = pet.isVaccinated
-          ? "Vaccinated"
-          : "Not Vaccinated";
+        document.getElementById("modal-pet-vaccinated").textContent =
+          pet.isVaccinated ? "Vaccinated" : "Not Vaccinated";
         document.getElementById("modal-pet-tags").innerHTML = (pet.tags || [])
           .map(
             (tag) =>
