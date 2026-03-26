@@ -2196,11 +2196,12 @@ func updateAdoptionInquiryStatusHandler(w http.ResponseWriter, r *http.Request) 
 	mu.Lock()
 	if pet, exists := petsByID[petID]; exists {
 		oldPetStatus = pet.Status
-		if req.Status == "Approved" {
+		switch req.Status {
+case "Approved":
 			pet.Status = "Adopted"
 			statusCounts[oldPetStatus]--
 			statusCounts["Adopted"]++
-		} else if req.Status == "Pending" || req.Status == "Rejected" {
+		case "Pending", "Rejected":
 			pet.Status = "Available"
 			statusCounts[oldPetStatus]--
 			statusCounts["Available"]++
